@@ -17,7 +17,12 @@
       "WebFetch(domain:www.whoi.edu)",
       "WebFetch(domain:lorraine-lisiecki.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(del eccentricity.js fetch_obliquity.js obliquity_array.txt obliquity_reversed.txt obliquity_clean.txt obliquity_const.txt obl_fragment.txt fetch_log.txt la2010_header.txt la2010_ecc_block.txt la2010_obl_block.txt)",
+      "Bash(Get-ChildItem -Path \"D:\\\\index\\\\milutin\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Format-Table -AutoSize)"
     ]
   }
 }

@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Earth Orbital Parameters — La2010</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #080c14;
+      color: #c8d8f0;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      gap: 14px;
+    }
+
+    h1 {
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: #7aaddd;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    #stats,
+    #obl-stats {
+      display: flex;
+      gap: 32px;
+      font-size: 0.82rem;
+      color: #9bb8d8;
+    }
+
+    #stats span,
+    #obl-stats span {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    #stats b,
+    #obl-stats b {
+      font-size: 1.1rem;
+      color: #e0f0ff;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #orbitCanvas {
+      background: #04080f;
+      border: 1px solid #1a2a3a;
+    }
+
+    #timelineCanvas {
+      background: #04080f;
+      border: 1px solid #1a2a3a;
+      cursor: pointer;
+    }
+
+    #obliquityCanvas {
+      background: #04080f;
+      border: 1px solid #1a2a3a;
+    }
+
+    #obliquityTimelineCanvas {
+      background: #04080f;
+      border: 1px solid #1a2a3a;
+      cursor: pointer;
+    }
+
+    #controls,
+    #obl-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      background: #112233;
+      border: 1px solid #2a4a6a;
+      color: #80c0ff;
+      padding: 6px 18px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+    }
+
+    button:hover {
+      background: #1a3a55;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #7090a8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 160px;
+      height: 4px;
+      background: #1a3050;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #4a9de0;
+      cursor: pointer;
+    }
+
+    #speedVal,
+    #oblSpeedVal {
+      min-width: 72px;
+      color: #9bb8d8;
+    }
+
+    .legend {
+      display: flex;
+      margin-top: 8px;
+      gap: 20px;
+      font-size: 0.75rem;
+      color: #7090a8;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    #page-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: -8px;
+    }
+
+    .tab {
+      background: #0d1e30;
+      border: 1px solid #1a3a5a;
+      color: #5080a0;
+      padding: 6px 28px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      border-bottom: none;
+    }
+
+    .tab:hover {
+      background: #132840;
+      color: #80b0d0;
+    }
+
+    .tab.active {
+      background: #080c14;
+      color: #7aaddd;
+      border-color: #2a5a8a;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="page-tabs">
+    <button class="tab active" id="tab-orbit" onclick="showPage('orbit')">ORBIT</button>
+    <button class="tab" id="tab-obliquity" onclick="showPage('obliquity')">OBLIQUITY</button>
+  </div>
+
+  <!-- Page 1: Eccentricity / Orbit -->
+  <div id="page-orbit">
+    <h1>Earth Orbital Eccentricity · La2010d Solution</h1>
+    <div id="stats">
+      <span>
+        <div>TIME</div><b id="statTime">0 kyr BP</b>
+      </span>
+      <span>
+        <div>ECCENTRICITY</div><b id="statEcc">0.016702</b>
+      </span>
+      <span>
+        <div>PERIHELION</div><b id="statPeri">—</b>
+      </span>
+      <span>
+        <div>APHELION</div><b id="statApo">—</b>
+      </span>
+    </div>
+    <canvas id="orbitCanvas" width="620" height="360"></canvas>
+    <canvas id="timelineCanvas" width="620" height="110"></canvas>
+    <div id="controls">
+      <button id="btnPlay">&#9646;&#9646; PAUSE</button>
+      <label>
+        SPEED
+        <input type="range" id="speedSlider" min="0" max="100" value="40">
+        <span id="speedVal"></span>
+      </label>
+      <button id="btnReset">&#8635; RESET</button>
+      <button id="btnSound">&#9834; SOUND</button>
+    </div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#f5c842"></span>Sun (F₁)</span>
+      <span style="color:#5090dd">✕ F₂ Empty Focus</span>
+      <span><span class="legend-dot" style="background:#e05050"></span>Perihelion</span>
+      <span><span class="legend-dot" style="background:#50a0e0"></span>Aphelion</span>
+    </div>
+  </div>
+
+  <!-- Page 2: Obliquity / Axial Tilt -->
+  <div id="page-obliquity" style="display:none">
+    <h1>Earth Axial Tilt (Obliquity) · La2004 Solution</h1>
+    <div id="obl-stats">
+      <span>
+        <div>TIME</div><b id="oblStatTime">0 kyr BP</b>
+      </span>
+      <span>
+        <div>OBLIQUITY</div><b id="oblStatDeg">23.4393°</b>
+      </span>
+      <span>
+        <div>RATE</div><b id="oblStatRate">—</b>
+      </span>
+    </div>
+    <canvas id="obliquityCanvas" width="620" height="360"></canvas>
+    <canvas id="obliquityTimelineCanvas" width="620" height="110"></canvas>
+    <div id="obl-controls">
+      <button id="oblBtnPlay">&#9646;&#9646; PAUSE</button>
+      <label>
+        SPEED
+        <input type="range" id="oblSpeedSlider" min="0" max="100" value="40">
+        <span id="oblSpeedVal"></span>
+      </label>
+      <button id="oblBtnReset">&#8635; RESET</button>
+      <button id="oblBtnSound">&#9834; SOUND</button>
+    </div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#f5c842"></span>Rotation Axis</span>
+      <span><span class="legend-dot" style="background:#50a0e0"></span>Ecliptic Plane</span>
+      <span><span class="legend-dot" style="background:#3a8060"></span>Earth</span>
+    </div>
+  </div>
+
+  <script src="La2010.js"></script>
+  <script>
+    // ─── Tab navigation ───────────────────────────────────────────────────────────
+
+    let activePage = 'orbit';
+
+    function showPage(name) {
+      if (name === 'obliquity' && soundOn && oscillator) {
+        oscillator.stop(); oscillator = null; soundOn = false;
+        document.getElementById('btnSound').textContent = '♩ SOUND';
+      }
+      if (name === 'orbit' && oblSoundOn && oblOscillator) {
+        oblOscillator.stop(); oblOscillator = null; oblSoundOn = false;
+        document.getElementById('oblBtnSound').textContent = '♩ SOUND';
+      }
+      activePage = name;
+      document.getElementById('page-orbit').style.display = name === 'orbit' ? '' : 'none';
+      document.getElementById('page-obliquity').style.display = name === 'obliquity' ? '' : 'none';
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      lastTimestamp = null;
+      oblLastTimestamp = null;
+    }
+
+    // ─── Canvas setup ─────────────────────────────────────────────────────────────
+
+    const orbitCanvas = document.getElementById('orbitCanvas');
+    const timelineCanvas = document.getElementById('timelineCanvas');
+    const oc = orbitCanvas.getContext('2d');
+    const tc = timelineCanvas.getContext('2d');
+
+    const oblCanvas = document.getElementById('obliquityCanvas');
+    const oblTlCanvas = document.getElementById('obliquityTimelineCanvas');
+    const oblC = oblCanvas.getContext('2d');
+    const oblTc = oblTlCanvas.getContext('2d');
+
+    const OW = orbitCanvas.width, OH = orbitCanvas.height;
+    const TW = timelineCanvas.width, TH = timelineCanvas.height;
+
+    // ─── Orbit state ──────────────────────────────────────────────────────────────
+
+    const T_MIN = 0;
+    const T_MAX = -9_995_000;
+    let currentT = T_MAX;
+    let playing = true;
+    let lastTimestamp = null;
+
+    // ─── Obliquity state ──────────────────────────────────────────────────────────
+
+    const OBL_T_MAX = -9_995_000;
+    let oblCurrentT = OBL_T_MAX;
+    let oblPlaying = true;
+    let oblLastTimestamp = null;
+
+    // ─── Orbit speed slider ───────────────────────────────────────────────────────
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+
+    function getSpeed() {
+      const v = speedSlider.value / 100;
+      return Math.round(10 ** (1 + v * 3));
+    }
+
+    function updateSpeedLabel() {
+      const s = getSpeed();
+      speedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
+    }
+    speedSlider.addEventListener('input', updateSpeedLabel);
+    updateSpeedLabel();
+
+    // ─── Obliquity speed slider ───────────────────────────────────────────────────
+
+    const oblSpeedSlider = document.getElementById('oblSpeedSlider');
+    const oblSpeedVal = document.getElementById('oblSpeedVal');
+
+    function getOblSpeed() {
+      const v = oblSpeedSlider.value / 100;
+      return Math.round(10 ** (1 + v * 3));
+    }
+
+    function updateOblSpeedLabel() {
+      const s = getOblSpeed();
+      oblSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
+    }
+    oblSpeedSlider.addEventListener('input', updateOblSpeedLabel);
+    updateOblSpeedLabel();
+
+    // ─── Precompute timelines ─────────────────────────────────────────────────────
+
+    const TIMELINE_SAMPLES = 2001;
+
+    const timelineData = new Float64Array(TIMELINE_SAMPLES);
+    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+      timelineData[i] = earthEccentricity(-i * 5000);
+    }
+    const eccMax = Math.max(...timelineData) * 1.05;
+
+    const OBL_MIN_DEG = 21.0;
+    const OBL_MAX_DEG = 24.5;
+    const OBL_RANGE = OBL_MAX_DEG - OBL_MIN_DEG;
+
+    const obliquityData = new Float64Array(TIMELINE_SAMPLES);
+    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+      obliquityData[i] = earthObliquity(-i * 5000) * (180 / Math.PI);
+    }
+
+    // ─── Shared helpers ───────────────────────────────────────────────────────────
+
+    const TL_PAD_L = 50, TL_PAD_R = 16, TL_PAD_T = 14, TL_PAD_B = 28;
+    const TL_W = TW - TL_PAD_L - TL_PAD_R;
+    const TL_H = TH - TL_PAD_T - TL_PAD_B;
+
+    const STAR_SEEDS = [[42, 17], [87, 63], [154, 290], [230, 40], [390, 180], [500, 80], [60, 300], [470, 320], [300, 20], [140, 350], [530, 130], [20, 200], [600, 260], [350, 340], [80, 140]];
+
+    function drawStars(ctx) {
+      ctx.fillStyle = 'rgba(200,220,255,0.45)';
+      for (const [sx, sy] of STAR_SEEDS) {
+        ctx.beginPath();
+        ctx.arc(sx, sy, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function label(ctx, text, x, y, color, size, align = 'left') {
+      ctx.save();
+      ctx.font = `${size} 'Courier New', monospace`;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    // ─── Orbital geometry ─────────────────────────────────────────────────────────
+
+    const A_DISPLAY = 155;
+    const SUN_X = OW / 2 + 30, SUN_Y = OH / 2;
+
+    function ellipseParams(e) {
+      const a = A_DISPLAY;
+      const b = a * Math.sqrt(1 - e * e);
+      const c = a * e;
+      return { a, b, c };
+    }
+
+    // ─── Draw orbit ───────────────────────────────────────────────────────────────
+
+    function drawOrbit(e) {
+      oc.clearRect(0, 0, OW, OH);
+      const { a, b, c } = ellipseParams(e);
+      const eccCx = SUN_X - c;
+      const sunX = SUN_X, sunY = SUN_Y;
+      const emptyFocusX = SUN_X - 2 * c, emptyFocusY = SUN_Y;
+      const cy = SUN_Y;
+
+      drawStars(oc);
+
+      oc.save();
+      oc.setLineDash([4, 6]);
+      oc.strokeStyle = '#1a3050'; oc.lineWidth = 1;
+      oc.beginPath(); oc.moveTo(eccCx - a - 20, cy); oc.lineTo(eccCx + a + 20, cy); oc.stroke();
+      oc.setLineDash([]);
+      oc.restore();
+
+      oc.save();
+      oc.setLineDash([2, 8]);
+      oc.strokeStyle = '#111e2e'; oc.lineWidth = 1;
+      oc.beginPath(); oc.moveTo(eccCx, cy - b - 20); oc.lineTo(eccCx, cy + b + 20); oc.stroke();
+      oc.setLineDash([]);
+      oc.restore();
+
+      const grad = oc.createLinearGradient(eccCx - a, cy, eccCx + a, cy);
+      grad.addColorStop(0, '#1a4a80'); grad.addColorStop(0.5, '#1e5a9a'); grad.addColorStop(1, '#1a4a80');
+      oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
+      oc.strokeStyle = grad; oc.lineWidth = 1.8; oc.stroke();
+
+      oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
+      oc.fillStyle = 'rgba(10,30,60,0.25)'; oc.fill();
+
+      oc.beginPath(); oc.moveTo(sunX, sunY); oc.lineTo(emptyFocusX, emptyFocusY);
+      oc.strokeStyle = 'rgba(80,120,160,0.3)'; oc.lineWidth = 1; oc.stroke();
+
+      const _xs = 5;
+      oc.save(); oc.strokeStyle = '#5090dd'; oc.lineWidth = 1.5;
+      oc.beginPath();
+      oc.moveTo(emptyFocusX - _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX + _xs, emptyFocusY + _xs);
+      oc.moveTo(emptyFocusX + _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX - _xs, emptyFocusY + _xs);
+      oc.stroke(); oc.restore();
+      label(oc, 'F₂', emptyFocusX, emptyFocusY + 18, '#5080aa', '0.75rem');
+
+      const sunGlow = oc.createRadialGradient(sunX, sunY, 0, sunX, sunY, 22);
+      sunGlow.addColorStop(0, 'rgba(255,220,80,0.9)');
+      sunGlow.addColorStop(0.5, 'rgba(255,180,40,0.3)');
+      sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
+      oc.beginPath(); oc.arc(sunX, sunY, 22, 0, Math.PI * 2); oc.fillStyle = sunGlow; oc.fill();
+
+      oc.beginPath(); oc.arc(sunX, sunY, 8, 0, Math.PI * 2);
+      oc.fillStyle = '#f5c842'; oc.fill();
+      oc.strokeStyle = '#ffe080'; oc.lineWidth = 1.5; oc.stroke();
+      label(oc, 'F₁', sunX, sunY + 26, '#c8a040', '0.75rem');
+
+      const perX = eccCx + a, perY = cy;
+      oc.beginPath(); oc.arc(perX, perY, 5, 0, Math.PI * 2); oc.fillStyle = '#e05050'; oc.fill();
+      label(oc, 'PERIHELION', perX + 10, perY, '#e07070', '0.72rem');
+
+      const apoX = eccCx - a, apoY = cy;
+      oc.beginPath(); oc.arc(apoX, apoY, 5, 0, Math.PI * 2); oc.fillStyle = '#50a0e0'; oc.fill();
+      label(oc, 'APHELION', apoX - 10, apoY, '#70b0e0', '0.72rem', 'right');
+
+      const eccBarW = 120, eccBarH = 8;
+      const eccBarX = OW - eccBarW - 16, eccBarY = 18;
+      oc.fillStyle = '#0d1e30'; oc.fillRect(eccBarX, eccBarY, eccBarW, eccBarH);
+      oc.fillStyle = eccColor(e); oc.fillRect(eccBarX, eccBarY, eccBarW * (e / 0.065), eccBarH);
+      oc.strokeStyle = '#2a4a6a'; oc.lineWidth = 1; oc.strokeRect(eccBarX, eccBarY, eccBarW, eccBarH);
+      label(oc, `e = ${e.toFixed(6)}`, eccBarX + eccBarW / 2, eccBarY - 6, '#9abedf', '0.78rem', 'center');
+      label(oc, 'e max ≈ 0.065', eccBarX + eccBarW, eccBarY + 20, '#4a6a88', '0.65rem', 'right');
+    }
+
+    function eccColor(e) {
+      const t = e / 0.065;
+      return `rgb(${Math.round(30 + t * 200)},${Math.round(100 - t * 60)},${Math.round(180 - t * 120)})`;
+    }
+
+    // ─── Draw obliquity diagram ───────────────────────────────────────────────────
+
+    function drawObliquityDiagram(oblDeg) {
+      oblC.clearRect(0, 0, OW, OH);
+      const cx = OW / 2, cy = OH / 2;
+      const earthR = 85, axisLen = 130;
+      const oblRad = oblDeg * Math.PI / 180;
+
+      drawStars(oblC);
+
+      // Ecliptic plane
+      oblC.save();
+      oblC.setLineDash([6, 4]);
+      oblC.strokeStyle = '#50a0e0'; oblC.lineWidth = 1;
+      oblC.beginPath(); oblC.moveTo(cx - 270, cy); oblC.lineTo(cx + 270, cy); oblC.stroke();
+      oblC.setLineDash([]);
+      oblC.restore();
+      label(oblC, 'ECLIPTIC PLANE', cx + 168, cy - 7, '#3a70a0', '0.65rem');
+
+      // Ecliptic normal (faint vertical)
+      oblC.save();
+      oblC.setLineDash([2, 8]);
+      oblC.strokeStyle = 'rgba(50,100,140,0.4)'; oblC.lineWidth = 1;
+      oblC.beginPath(); oblC.moveTo(cx, cy - axisLen - 20); oblC.lineTo(cx, cy + axisLen + 20); oblC.stroke();
+      oblC.setLineDash([]);
+      oblC.restore();
+
+      // Earth atmosphere glow
+      const earthGlow = oblC.createRadialGradient(cx, cy, earthR * 0.8, cx, cy, earthR * 1.35);
+      earthGlow.addColorStop(0, 'rgba(40,100,200,0.3)');
+      earthGlow.addColorStop(1, 'rgba(20,60,140,0)');
+      oblC.beginPath(); oblC.arc(cx, cy, earthR * 1.35, 0, Math.PI * 2);
+      oblC.fillStyle = earthGlow; oblC.fill();
+
+      // Earth body
+      const earthGrad = oblC.createRadialGradient(cx - earthR * 0.3, cy - earthR * 0.3, earthR * 0.1, cx, cy, earthR);
+      earthGrad.addColorStop(0, '#3a8060');
+      earthGrad.addColorStop(0.5, '#1e5070');
+      earthGrad.addColorStop(1, '#0e2840');
+      oblC.beginPath(); oblC.arc(cx, cy, earthR, 0, Math.PI * 2);
+      oblC.fillStyle = earthGrad; oblC.fill();
+      oblC.strokeStyle = '#2a6090'; oblC.lineWidth = 1.5; oblC.stroke();
+
+      // Equator line (perpendicular to axis)
+      const eqDx = Math.cos(oblRad) * earthR;
+      const eqDy = Math.sin(oblRad) * earthR;
+      oblC.save();
+      oblC.beginPath();
+      oblC.moveTo(cx - eqDx, cy - eqDy); oblC.lineTo(cx + eqDx, cy + eqDy);
+      oblC.strokeStyle = 'rgba(120,200,160,0.5)'; oblC.lineWidth = 1.2; oblC.stroke();
+      oblC.restore();
+
+      // Rotation axis (north = cx + sin*len, cy - cos*len)
+      const axNx = Math.sin(oblRad) * axisLen;
+      const axNy = Math.cos(oblRad) * axisLen;
+      oblC.beginPath();
+      oblC.moveTo(cx - axNx, cy + axNy);
+      oblC.lineTo(cx + axNx, cy - axNy);
+      oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 2; oblC.stroke();
+
+      label(oblC, 'N', cx + axNx + 6, cy - axNy + 4, '#f5c842', '0.85rem');
+      label(oblC, 'S', cx - axNx - 14, cy + axNy + 4, '#c8a040', '0.75rem');
+
+      // Arc showing tilt angle (between ecliptic normal and axis)
+      const arcR = 55;
+      const arcStart = -Math.PI / 2;
+      const arcEnd = -Math.PI / 2 + oblRad;
+      oblC.save();
+      oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 1.5;
+      oblC.beginPath(); oblC.arc(cx, cy, arcR, arcStart, arcEnd); oblC.stroke();
+      oblC.restore();
+
+      // Tilt label near arc midpoint
+      const midAngle = arcStart + oblRad / 2;
+      const lx = cx + Math.cos(midAngle) * (arcR + 22);
+      const ly = cy + Math.sin(midAngle) * (arcR + 22);
+      label(oblC, `${oblDeg.toFixed(4)}°`, lx + 4, ly + 5, '#e0f0ff', '1.0rem');
+
+      // Obliquity bar (top right)
+      const barW = 120, barH = 8;
+      const barX = OW - barW - 16, barY = 18;
+      oblC.fillStyle = '#0d1e30'; oblC.fillRect(barX, barY, barW, barH);
+      oblC.fillStyle = oblColor(oblDeg);
+      oblC.fillRect(barX, barY, barW * Math.max(0, Math.min(1, (oblDeg - OBL_MIN_DEG) / OBL_RANGE)), barH);
+      oblC.strokeStyle = '#2a4a6a'; oblC.lineWidth = 1; oblC.strokeRect(barX, barY, barW, barH);
+      label(oblC, `ε = ${oblDeg.toFixed(4)}°`, barX + barW / 2, barY - 6, '#9abedf', '0.78rem', 'center');
+      label(oblC, '21° – 24.5° range', barX + barW, barY + 20, '#4a6a88', '0.65rem', 'right');
+    }
+
+    function oblColor(oblDeg) {
+      const t = (oblDeg - OBL_MIN_DEG) / OBL_RANGE;
+      return `rgb(${Math.round(60 + t * 160)},${Math.round(120 - t * 60)},${Math.round(180 - t * 130)})`;
+    }
+
+    // ─── Draw eccentricity timeline ───────────────────────────────────────────────
+
+    function drawTimeline(currentT) {
+      tc.clearRect(0, 0, TW, TH);
+      tc.fillStyle = '#2a4a6a'; tc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+      tc.beginPath();
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+        const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
+        i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
+      }
+      tc.strokeStyle = '#3a80c0'; tc.lineWidth = 1.2; tc.stroke();
+
+      tc.beginPath();
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+        const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
+        i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
+      }
+      tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
+      tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
+      tc.closePath(); tc.fillStyle = 'rgba(30,80,150,0.22)'; tc.fill();
+
+      tc.setLineDash([2, 6]); tc.strokeStyle = 'rgba(80,140,80,0.35)'; tc.lineWidth = 1;
+      for (let kyr = 405; kyr <= 10000; kyr += 405) {
+        const xi = TL_PAD_L + (1 - kyr / 10000) * TL_W;
+        tc.beginPath(); tc.moveTo(xi, TL_PAD_T); tc.lineTo(xi, TL_PAD_T + TL_H); tc.stroke();
+      }
+      tc.setLineDash([]);
+
+      const fracT = Math.abs(currentT) / 10_000_000;
+      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+      tc.strokeStyle = '#f0e060'; tc.lineWidth = 1.5;
+      tc.beginPath(); tc.moveTo(cursorX, TL_PAD_T - 2); tc.lineTo(cursorX, TL_PAD_T + TL_H + 2); tc.stroke();
+      const e = earthEccentricity(currentT);
+      const dotY = TL_PAD_T + TL_H - (e / eccMax) * TL_H;
+      tc.beginPath(); tc.arc(cursorX, dotY, 3.5, 0, Math.PI * 2); tc.fillStyle = '#f0e060'; tc.fill();
+
+      tc.strokeStyle = '#3a5a7a'; tc.lineWidth = 1;
+      tc.beginPath(); tc.moveTo(TL_PAD_L, TL_PAD_T); tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); tc.stroke();
+
+      tc.fillStyle = '#5a7a9a'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
+      for (const myr of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+        const xi = TL_PAD_L + (1 - myr / 10) * TL_W;
+        tc.fillText(myr === 0 ? 'NOW' : `${myr}`, xi, TL_PAD_T + TL_H + 16);
+      }
+      tc.fillStyle = '#3a5a7a'; tc.textAlign = 'center';
+      tc.fillText('← Myr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+      tc.save(); tc.translate(12, TL_PAD_T + TL_H / 2); tc.rotate(-Math.PI / 2);
+      tc.fillStyle = '#4a6a8a'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
+      tc.fillText('e', 0, 0); tc.restore();
+
+      tc.textAlign = 'right';
+      for (const ev of [0, 0.02, 0.04, 0.06]) {
+        const yi = TL_PAD_T + TL_H - (ev / eccMax) * TL_H;
+        tc.fillStyle = '#4a6a8a'; tc.font = "0.62rem 'Courier New', monospace";
+        tc.fillText(ev.toFixed(2), TL_PAD_L - 4, yi + 4);
+        tc.beginPath(); tc.strokeStyle = 'rgba(60,100,140,0.3)'; tc.lineWidth = 0.5;
+        tc.moveTo(TL_PAD_L, yi); tc.lineTo(TL_PAD_L + TL_W, yi); tc.stroke();
+      }
+    }
+
+    // ─── Draw obliquity timeline ──────────────────────────────────────────────────
+
+    function drawObliquityTimeline(oblT) {
+      oblTc.clearRect(0, 0, TW, TH);
+      oblTc.fillStyle = '#2a4a6a'; oblTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+      oblTc.beginPath();
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+        const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+        i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
+      }
+      oblTc.strokeStyle = '#3a80c0'; oblTc.lineWidth = 1.2; oblTc.stroke();
+
+      oblTc.beginPath();
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+        const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+        i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
+      }
+      oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
+      oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
+      oblTc.closePath(); oblTc.fillStyle = 'rgba(30,80,150,0.22)'; oblTc.fill();
+
+      // 410 kyr markers (10 × 41 kyr obliquity cycle)
+      oblTc.setLineDash([2, 6]); oblTc.strokeStyle = 'rgba(160,110,50,0.35)'; oblTc.lineWidth = 1;
+      for (let kyr = 410; kyr <= 10000; kyr += 410) {
+        const xi = TL_PAD_L + (1 - kyr / 10000) * TL_W;
+        oblTc.beginPath(); oblTc.moveTo(xi, TL_PAD_T); oblTc.lineTo(xi, TL_PAD_T + TL_H); oblTc.stroke();
+      }
+      oblTc.setLineDash([]);
+
+      const fracT = Math.abs(oblT) / 10_000_000;
+      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+      oblTc.strokeStyle = '#f0e060'; oblTc.lineWidth = 1.5;
+      oblTc.beginPath(); oblTc.moveTo(cursorX, TL_PAD_T - 2); oblTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); oblTc.stroke();
+      const oblDeg = earthObliquity(oblT) * 180 / Math.PI;
+      const dotY = TL_PAD_T + TL_H - ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+      oblTc.beginPath();
+      oblTc.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
+      oblTc.fillStyle = '#f0e060'; oblTc.fill();
+
+      oblTc.strokeStyle = '#3a5a7a'; oblTc.lineWidth = 1;
+      oblTc.beginPath(); oblTc.moveTo(TL_PAD_L, TL_PAD_T); oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); oblTc.stroke();
+
+      oblTc.fillStyle = '#5a7a9a'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
+      for (const myr of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+        const xi = TL_PAD_L + (1 - myr / 10) * TL_W;
+        oblTc.fillText(myr === 0 ? 'NOW' : `${myr}`, xi, TL_PAD_T + TL_H + 16);
+      }
+      oblTc.fillStyle = '#3a5a7a'; oblTc.textAlign = 'center';
+      oblTc.fillText('← Myr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+      oblTc.save(); oblTc.translate(12, TL_PAD_T + TL_H / 2); oblTc.rotate(-Math.PI / 2);
+      oblTc.fillStyle = '#4a6a8a'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
+      oblTc.fillText('ε', 0, 0); oblTc.restore();
+
+      oblTc.textAlign = 'right';
+      for (const dv of [21, 22, 23, 24]) {
+        const yi = TL_PAD_T + TL_H - ((dv - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+        if (yi < TL_PAD_T || yi > TL_PAD_T + TL_H) continue;
+        oblTc.fillStyle = '#4a6a8a'; oblTc.font = "0.62rem 'Courier New', monospace";
+        oblTc.fillText(`${dv}°`, TL_PAD_L - 4, yi + 4);
+        oblTc.beginPath(); oblTc.strokeStyle = 'rgba(60,100,140,0.3)'; oblTc.lineWidth = 0.5;
+        oblTc.moveTo(TL_PAD_L, yi); oblTc.lineTo(TL_PAD_L + TL_W, yi); oblTc.stroke();
+      }
+    }
+
+    // ─── Stats ────────────────────────────────────────────────────────────────────
+
+    function updateStats(t, e) {
+      const kyrBP = Math.abs(t / 1000);
+      document.getElementById('statTime').textContent =
+        kyrBP < 0.1 ? 'J2000.0' : kyrBP < 1000 ? `${kyrBP.toFixed(1)} kyr BP` : `${(kyrBP / 1000).toFixed(3)} Myr BP`;
+      document.getElementById('statEcc').textContent = e.toFixed(6);
+      document.getElementById('statPeri').textContent = `${(1 - e).toFixed(4)} AU`;
+      document.getElementById('statApo').textContent = `${(1 + e).toFixed(4)} AU`;
+    }
+
+    function updateOblStats(t, oblDeg) {
+      const kyrBP = Math.abs(t / 1000);
+      document.getElementById('oblStatTime').textContent =
+        kyrBP < 0.1 ? 'J2000.0' : kyrBP < 1000 ? `${kyrBP.toFixed(1)} kyr BP` : `${(kyrBP / 1000).toFixed(3)} Myr BP`;
+      document.getElementById('oblStatDeg').textContent = `${oblDeg.toFixed(4)}°`;
+      const oblDeg2 = earthObliquity(t - 5000) * 180 / Math.PI;
+      const rate = (oblDeg - oblDeg2) / 5;
+      document.getElementById('oblStatRate').textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}°/kyr`;
+    }
+
+    // ─── Unified animation loop ───────────────────────────────────────────────────
+
+    function frame(timestamp) {
+      if (activePage === 'orbit') {
+        if (lastTimestamp !== null && playing) {
+          const dt = (timestamp - lastTimestamp) / 1000;
+          currentT += getSpeed() * 1000 * dt;
+          if (currentT > T_MIN) currentT = T_MAX;
+        }
+        lastTimestamp = timestamp;
+        const e = earthEccentricity(currentT);
+        drawOrbit(e);
+        drawTimeline(currentT);
+        updateStats(currentT, e);
+        if (soundOn && oscillator) oscillator.frequency.setTargetAtTime(eccToHz(e), audioCtx.currentTime, 0.05);
+      } else {
+        if (oblLastTimestamp !== null && oblPlaying) {
+          const dt = (timestamp - oblLastTimestamp) / 1000;
+          oblCurrentT += getOblSpeed() * 1000 * dt;
+          if (oblCurrentT > 0) oblCurrentT = OBL_T_MAX;
+        }
+        oblLastTimestamp = timestamp;
+        const oblDeg = earthObliquity(oblCurrentT) * 180 / Math.PI;
+        drawObliquityDiagram(oblDeg);
+        drawObliquityTimeline(oblCurrentT);
+        updateOblStats(oblCurrentT, oblDeg);
+        if (oblSoundOn && oblOscillator) oblOscillator.frequency.setTargetAtTime(oblToHz(oblDeg), oblAudioCtx.currentTime, 0.05);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // ─── Orbit controls ───────────────────────────────────────────────────────────
+
+    document.getElementById('btnPlay').addEventListener('click', function () {
+      playing = !playing;
+      this.innerHTML = playing ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+      if (playing) lastTimestamp = null;
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      currentT = T_MAX; lastTimestamp = null;
+    });
+
+    timelineCanvas.addEventListener('click', function (ev) {
+      const rect = this.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+      currentT = -(1 - frac) * 10_000_000;
+      lastTimestamp = null;
+    });
+
+    // ─── Orbit sound ──────────────────────────────────────────────────────────────
+
+    let audioCtx = null, oscillator = null, gainNode = null, soundOn = false;
+
+    document.getElementById('btnSound').addEventListener('click', function () {
+      if (!soundOn) {
+        audioCtx = audioCtx || new AudioContext();
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = eccToHz(earthEccentricity(currentT));
+        gainNode.gain.value = 0.18;
+        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        soundOn = true; this.textContent = '⏹ SOUND';
+      } else {
+        oscillator.stop(); oscillator = null; soundOn = false; this.textContent = '♩ SOUND';
+      }
+    });
+
+    function eccToHz(e) { return 80 + (e / 0.065) * 440; }
+
+    // ─── Obliquity controls ───────────────────────────────────────────────────────
+
+    document.getElementById('oblBtnPlay').addEventListener('click', function () {
+      oblPlaying = !oblPlaying;
+      this.innerHTML = oblPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+      if (oblPlaying) oblLastTimestamp = null;
+    });
+
+    document.getElementById('oblBtnReset').addEventListener('click', () => {
+      oblCurrentT = OBL_T_MAX; oblLastTimestamp = null;
+    });
+
+    oblTlCanvas.addEventListener('click', function (ev) {
+      const rect = this.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+      oblCurrentT = -(1 - frac) * 10_000_000;
+      oblLastTimestamp = null;
+    });
+
+    // ─── Obliquity sound ──────────────────────────────────────────────────────────
+
+    let oblAudioCtx = null, oblOscillator = null, oblGainNode = null, oblSoundOn = false;
+
+    document.getElementById('oblBtnSound').addEventListener('click', function () {
+      if (!oblSoundOn) {
+        oblAudioCtx = oblAudioCtx || new AudioContext();
+        oblOscillator = oblAudioCtx.createOscillator();
+        oblGainNode = oblAudioCtx.createGain();
+        oblOscillator.type = 'sine';
+        oblOscillator.frequency.value = oblToHz(earthObliquity(oblCurrentT) * 180 / Math.PI);
+        oblGainNode.gain.value = 0.18;
+        oblOscillator.connect(oblGainNode); oblGainNode.connect(oblAudioCtx.destination);
+        oblOscillator.start();
+        oblSoundOn = true; this.textContent = '⏹ SOUND';
+      } else {
+        oblOscillator.stop(); oblOscillator = null; oblSoundOn = false; this.textContent = '♩ SOUND';
+      }
+    });
+
+    function oblToHz(oblDeg) { return 80 + ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * 440; }
+
+    // ─── Start ────────────────────────────────────────────────────────────────────
+
+    requestAnimationFrame(frame);
+  </script>
+</body>
+
+</html>
