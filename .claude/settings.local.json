@@ -22,7 +22,23 @@
       "Bash(del eccentricity.js fetch_obliquity.js obliquity_array.txt obliquity_reversed.txt obliquity_clean.txt obliquity_const.txt obl_fragment.txt fetch_log.txt la2010_header.txt la2010_ecc_block.txt la2010_obl_block.txt)",
       "Bash(Get-ChildItem -Path \"D:\\\\index\\\\milutin\" -Recurse -File)",
       "Bash(Select-Object FullName)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(python *)",
+      "Bash(Select-String -Path \"D:\\\\index\\\\milutin\\\\index.html\" -Pattern \"prBtnPlay|prSoundOn|activePage === 'precession'|PR_T_MAX|prToHz\")",
+      "Bash(Select-Object LineNumber, Line)",
+      "WebFetch(domain:dx.doi.org)",
+      "WebFetch(domain:datarepository.wolframcloud.com)",
+      "WebFetch(domain:ui.adsabs.harvard.edu)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:owd.tcnj.edu)",
+      "WebFetch(domain:www.physics.mun.ca)",
+      "WebFetch(domain:rdrr.io)",
+      "WebFetch(domain:www.elic.ucl.ac.be)",
+      "WebFetch(domain:cran.r-project.org)",
+      "WebFetch(domain:zenodo.org)",
+      "WebFetch(domain:www.rdocumentation.org)",
+      "WebFetch(domain:search.r-project.org)",
+      "Bash(python3 *)"
     ]
   }
 }
