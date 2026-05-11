@@ -124,11 +124,19 @@
       background: #112233;
       border: 1px solid #2a4a6a;
       color: #80c0ff;
-      padding: 6px 18px;
+      padding: 6px 10px;
       font-family: inherit;
       font-size: 0.85rem;
       cursor: pointer;
       letter-spacing: 0.06em;
+    }
+
+    #btnPlay, #oblBtnPlay, #prBtnPlay, #axBtnPlay, #btnReset, #oblBtnReset, #prBtnReset, #axBtnReset, #btnSound, #oblBtnSound, #prBtnSound, #axBtnSound {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
     }
 
     button:hover {
@@ -325,7 +333,7 @@
           <input type="range" id="speedSlider" min="0" max="100" value="28">
           <span id="speedVal"></span>
         </label>
-        <button id="btnReset">&#8635; RESET</button>
+        <button id="btnReset">⏱ NOW</button>
         <button id="btnSound">&#9834; SOUND</button>
       </div>
       <div class="legend">
@@ -361,7 +369,7 @@
           <input type="range" id="oblSpeedSlider" min="0" max="100" value="28">
           <span id="oblSpeedVal"></span>
         </label>
-        <button id="oblBtnReset">&#8635; RESET</button>
+        <button id="oblBtnReset">⏱ NOW</button>
         <button id="oblBtnSound">&#9834; SOUND</button>
       </div>
       <div class="legend">
@@ -396,7 +404,7 @@
           <input type="range" id="prSpeedSlider" min="0" max="100" value="20">
           <span id="prSpeedVal"></span>
         </label>
-        <button id="prBtnReset">&#8635; RESET</button>
+        <button id="prBtnReset">⏱ NOW</button>
         <button id="prBtnSound">&#9834; SOUND</button>
       </div>
       <div class="legend">
@@ -434,7 +442,7 @@
           <input type="range" id="axSpeedSlider" min="0" max="100" value="28">
           <span id="axSpeedVal"></span>
         </label>
-        <button id="axBtnReset">&#8635; RESET</button>
+        <button id="axBtnReset">⏱ NOW</button>
         <button id="axBtnSound">&#9834; SOUND</button>
       </div>
       <div class="legend">
@@ -1584,7 +1592,7 @@
       });
 
       document.getElementById('btnReset').addEventListener('click', () => {
-        currentT = T_MAX; lastTimestamp = null;
+        currentT = 0; lastTimestamp = null;
       });
 
       timelineCanvas.addEventListener('click', function (ev) {
@@ -1625,7 +1633,7 @@
       });
 
       document.getElementById('oblBtnReset').addEventListener('click', () => {
-        oblCurrentT = OBL_T_MAX; oblLastTimestamp = null;
+        oblCurrentT = 0; oblLastTimestamp = null;
       });
 
       oblTlCanvas.addEventListener('click', function (ev) {
@@ -1666,7 +1674,7 @@
       });
 
       document.getElementById('prBtnReset').addEventListener('click', () => {
-        prCurrentT = PR_T_MAX; prLastTimestamp = null;
+        prCurrentT = 0; prLastTimestamp = null;
       });
 
       prTlCanvas.addEventListener('click', function (ev) {
@@ -1707,7 +1715,7 @@
       });
 
       document.getElementById('axBtnReset').addEventListener('click', () => {
-        axCurrentT = AX_T_MAX; axLastTimestamp = null;
+        axCurrentT = 0; axLastTimestamp = null;
       });
 
       axTlCanvas.addEventListener('click', function (ev) {
