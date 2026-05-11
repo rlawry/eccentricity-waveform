@@ -21,6 +21,13 @@
       justify-content: center;
       min-height: 100vh;
       padding: 20px;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
       gap: 14px;
     }
 
@@ -37,9 +44,9 @@
     #pre-stats,
     #ax-stats {
       display: flex;
-      gap: 32px;
       font-size: 0.82rem;
       color: #9bb8d8;
+      width: 100%;
     }
 
     #stats span,
@@ -48,6 +55,7 @@
     #ax-stats span {
       display: flex;
       flex-direction: column;
+      flex-grow: 1;
       align-items: center;
       gap: 2px;
     }
@@ -59,8 +67,9 @@
       font-size: 1.1rem;
       color: #e0f0ff;
       display: block;
-      min-width: 15ch;
+      min-width: 14ch;
       text-align: right;
+      flex-grow: 1;
     }
 
     canvas {
@@ -182,6 +191,8 @@
       display: flex;
       gap: 4px;
       margin-bottom: -8px;
+      width: 100%;
+      flex-wrap: nowrap;
     }
 
     .page {
@@ -189,6 +200,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      text-align: center;
     }
 
     .tab {
@@ -224,7 +236,10 @@
       letter-spacing: 0.12em;
       user-select: none;
     }
-    #citToggle:hover { color: #a8c8e0; }
+
+    #citToggle:hover {
+      color: #a8c8e0;
+    }
 
     #citBody {
       max-height: 0;
@@ -235,1442 +250,1504 @@
       text-align: center;
       line-height: 1.9;
     }
-    #citBody.cit-open { max-height: 200px; }
-    #citBody a { color: #7aaacf; }
+
+    #citBody.cit-open {
+      max-height: 200px;
+    }
+
+    #citBody a {
+      color: #7aaacf;
+    }
+
+    .column1 {
+      background: #0b4636;
+    }
+
+    .column2 {
+      background: #204940;
+    }
+
+    .column3 {
+      background: #0f5661;
+    }
+
+    .column4 {
+      background: #2a1758;
+    }
+
+    .question {
+      width: 100%;
+      background: #0a1420;
+      padding: 12px 0;
+    }
+
+    .question h1 {
+      margin: 0;
+    }
   </style>
 </head>
 
 <body>
 
-  <div id="page-tabs">
-    <button class="tab active" id="tab-orbit" onclick="showPage('orbit')">PRECESSION of ECCENTRICITY</button>
-    <button class="tab" id="tab-obliquity" onclick="showPage('obliquity')">PRECESSION of OBLIQUITY</button>
-    <button class="tab" id="tab-precession" onclick="showPage('precession')">PRECESSION of APSIDES</button>
-    <button class="tab" id="tab-axial" onclick="showPage('axial')">PRECESSION of AXIAL TILT</button>
-  </div>
+  <div id="app-container">
+    <div id="page-tabs">
+      <button class="tab active" id="tab-orbit" onclick="showPage('orbit')">PRECESSION of ECCENTRICITY</button>
+      <button class="tab" id="tab-obliquity" onclick="showPage('obliquity')">PRECESSION of OBLIQUITY</button>
+      <button class="tab" id="tab-precession" onclick="showPage('precession')">PRECESSION of APSIDES</button>
+      <button class="tab" id="tab-axial" onclick="showPage('axial')">PRECESSION of AXIAL TILT</button>
+    </div>
 
-  <!-- Page 1: Eccentricity / Orbit -->
-  <div id="page-orbit" class="page">
-    <h1>Does our closest point to the Sun get closer?</h1>
-    <div id="stats">
-      <span>
-        <div>TIME</div><b id="statTime">0 kyr BP</b>
-      </span>
-      <span>
-        <div>ECCENTRICITY</div><b id="statEcc">0.016702</b>
-      </span>
-      <span>
-        <div>PERIHELION</div><b id="statPeri">—</b>
-      </span>
-      <span>
-        <div>APHELION</div><b id="statApo">—</b>
-      </span>
-    </div>
-    <canvas id="orbitCanvas" width="620" height="400"></canvas>
-    <canvas id="timelineCanvas" width="620" height="110"></canvas>
-    <div id="controls">
-      <button id="btnPlay">&#9646;&#9646; PAUSE</button>
-      <label>
-        SPEED
-        <input type="range" id="speedSlider" min="0" max="100" value="40">
-        <span id="speedVal"></span>
-      </label>
-      <button id="btnReset">&#8635; RESET</button>
-      <button id="btnSound">&#9834; SOUND</button>
-    </div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#f5c842"></span>Sun (F₁)</span>
-      <span style="color:#5090dd">✕ F₂ Empty Focus</span>
-      <span><span class="legend-dot" style="background:#e05050"></span>Perihelion</span>
-      <span><span class="legend-dot" style="background:#50a0e0"></span>Aphelion</span>
-    </div>
-  </div>
-
-  <!-- Page 2: Obliquity / Axial Tilt -->
-  <div id="page-obliquity" class="page" style="display:none">
-    <h1>Is the Northern Hemisphere Tilted More Toward the Sun?</h1>
-    <div id="obl-stats">
-      <span>
-        <div>TIME</div><b id="oblStatTime">0 kyr BP</b>
-      </span>
-      <span>
-        <div>OBLIQUITY</div><b id="oblStatDeg">23.4393°</b>
-      </span>
-      <span>
-        <div>RATE</div><b id="oblStatRate">—</b>
-      </span>
-    </div>
-    <canvas id="obliquityCanvas" width="620" height="400"></canvas>
-    <canvas id="obliquityTimelineCanvas" width="620" height="110"></canvas>
-    <div id="obl-controls">
-      <button id="oblBtnPlay">&#9646;&#9646; PAUSE</button>
-      <label>
-        SPEED
-        <input type="range" id="oblSpeedSlider" min="0" max="100" value="40">
-        <span id="oblSpeedVal"></span>
-      </label>
-      <button id="oblBtnReset">&#8635; RESET</button>
-      <button id="oblBtnSound">&#9834; SOUND</button>
-    </div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#f5c842"></span>Rotation Axis</span>
-      <span><span class="legend-dot" style="background:#50a0e0"></span>Ecliptic Plane</span>
-      <span><span class="legend-dot" style="background:#3a8060"></span>Earth</span>
-    </div>
-  </div>
-
-  <!-- Page 3: Climatic Precession -->
-  <div id="page-precession" class="page" style="display:none">
-    <h1>Is the Northern Hemisphere Summer Near the Sun?</h1>
-    <div id="pre-stats">
-      <span><div>TIME</div><b id="prStatTime">0 kyr BP</b></span>
-      <span><div>PRECESSION INDEX</div><b id="prStatIdx">+0.01628</b></span>
-      <span><div>LONGITUDE ϖ</div><b id="prStatPibar">102.92°</b></span>
-    </div>
-    <canvas id="precessionCanvas" width="620" height="400"></canvas>
-    <canvas id="precessionTimelineCanvas" width="620" height="110"></canvas>
-    <div id="pre-controls">
-      <button id="prBtnPlay">&#9646;&#9646; PAUSE</button>
-      <label>
-        SPEED
-        <input type="range" id="prSpeedSlider" min="0" max="100" value="20">
-        <span id="prSpeedVal"></span>
-      </label>
-      <button id="prBtnReset">&#8635; RESET</button>
-      <button id="prBtnSound">&#9834; SOUND</button>
-    </div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#e05050"></span>Perihelion</span>
-      <span><span class="legend-dot" style="background:#50a0e0"></span>Aphelion</span>
-      <span><span class="legend-dot" style="background:#c07030; border-radius:0"></span> NH summer near sun</span>
-      <span><span class="legend-dot" style="background:#3060b0; border-radius:0"></span> NH winter near sun</span>
-    </div>
-  </div>
-
-  <!-- Page 4: Axial Precession -->
-  <div id="page-axial" class="page" style="display:none">
-    <h1>Earth Axial Precession</h1>
-    <div id="ax-stats">
-      <span><div>TIME</div><b id="axStatTime">0 kyr BP</b></span>
-      <span><div>ψ ANGLE</div><b id="axStatPsi">0.0°</b></span>
-      <span><div>POLE STAR</div><b id="axStatStar">Polaris</b></span>
-    </div>
-    <canvas id="axialCanvas" width="620" height="400" style="background:#04080f;border:1px solid #1a2a3a;display:block"></canvas>
-    <canvas id="axialTimelineCanvas" width="620" height="110" style="background:#04080f;border:1px solid #1a2a3a;display:block;cursor:pointer"></canvas>
-    <div id="ax-controls">
-      <button id="axBtnPlay">&#9646;&#9646; PAUSE</button>
-      <label>
-        SPEED
-        <input type="range" id="axSpeedSlider" min="0" max="100" value="40">
-        <span id="axSpeedVal"></span>
-      </label>
-      <button id="axBtnReset">&#8635; RESET</button>
-      <button id="axBtnSound">&#9834; SOUND</button>
-    </div>
-    <div class="legend">
-      <span><span style="color:#f5c842;font-weight:bold;margin-right:4px">✕</span>Rotation Axis / N Pole</span>
-      <span><span class="legend-dot" style="background:rgba(52,118,198,0.8)"></span>Precession Cone</span>
-      <span><span class="legend-dot" style="background:#9060c0"></span>Polaris</span>
-      <span><span class="legend-dot" style="background:#50c8a0"></span>Thuban</span>
-      <span><span class="legend-dot" style="background:#e07050"></span>Vega</span>
-      <span><span class="legend-dot" style="background:#6090d0"></span>Deneb</span>
-    </div>
-  </div>
-
-  <footer style="margin-top:3px;max-width:620px;width:100%;font-family:'Courier New',monospace">
-    <div id="citToggle" onclick="document.getElementById('citBody').classList.toggle('cit-open')">CITATIONS &#9662;</div>
-    <div id="citBody">
-      <div style="padding:10px 20px 14px">
-        <div>Eccentricity: Laskar J., Fienga A., Gastineau M., Manche H. (2011). <a href="https://doi.org/10.1051/0004-6361/201116836" target="_blank">La2010: a new orbital solution for the long-term motion of the Earth.</a> A&amp;A 532, A89. Data: <a href="https://ssp.imcce.fr/insola/earth/online/earth/La2010/" target="_blank">IMCCE La2010d</a></div>
-        <div>Obliquity + Precession: Laskar J., Robutel P., Joutel F., Gastineau M., Correia A.C.M., Levrard B. (2004). <a href="https://doi.org/10.1051/0004-6361:20048139" target="_blank">A long-term numerical solution for the insolation quantities of the Earth.</a> A&amp;A 428, 261-285. Data: <a href="https://ssp.imcce.fr/insola/earth/online/earth/La2004/" target="_blank">IMCCE La2004</a></div>
-        <div>Axial Precession rate: Berger A.L. (1978). <a href="https://doi.org/10.1175/1520-0469(1978)035%3C2362:LTVODI%3E2.0.CO;2" target="_blank">Long-term variations of daily insolation and Quaternary climatic changes.</a> J. Atmos. Sci. 35, 2362-2367.</div>
+    <!-- Page 1: Eccentricity / Orbit -->
+    <div id="page-orbit" class="page">
+      <div class="question">
+        <h1>Does our closest point to the Sun get closer?</h1>
+      </div>
+      <div id="stats">
+        <span class="column1">
+          <div>TIME</div><b id="statTime">0 kyr BP</b>
+        </span>
+        <span class="column2">
+          <div>ECCENTRICITY</div><b id="statEcc">0.016702</b>
+        </span>
+        <span class="column3">
+          <div>PERIHELION</div><b id="statPeri">—</b>
+        </span>
+        <span class="column4">
+          <div>APHELION</div><b id="statApo">—</b>
+        </span>
+      </div>
+      <canvas id="orbitCanvas" width="620" height="400"></canvas>
+      <canvas id="timelineCanvas" width="620" height="110"></canvas>
+      <div id="controls">
+        <button id="btnPlay">&#9646;&#9646; PAUSE</button>
+        <label>
+          SPEED
+          <input type="range" id="speedSlider" min="0" max="100" value="28">
+          <span id="speedVal"></span>
+        </label>
+        <button id="btnReset">&#8635; RESET</button>
+        <button id="btnSound">&#9834; SOUND</button>
+      </div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#f5c842"></span>Sun (F₁)</span>
+        <span style="color:#5090dd">✕ F₂ Empty Focus</span>
+        <span><span class="legend-dot" style="background:#e05050"></span>Perihelion</span>
+        <span><span class="legend-dot" style="background:#50a0e0"></span>Aphelion</span>
       </div>
     </div>
-  </footer>
 
-  <script src="La2010.js"></script>
-  <script>
-    // ─── Tab navigation ───────────────────────────────────────────────────────────
+    <!-- Page 2: Obliquity / Axial Tilt -->
+    <div id="page-obliquity" class="page" style="display:none">
+      <div class="question">
+        <h1>How far is the Axis Tilted?</h1>
+      </div>
+      <div id="obl-stats">
+        <span class="column1">
+          <div>TIME</div><b id="oblStatTime">0 kyr BP</b>
+        </span>
+        <span class="column2">
+          <div>OBLIQUITY</div><b id="oblStatDeg">23.4393°</b>
+        </span>
+        <span class="column3">
+          <div>RATE</div><b id="oblStatRate">—</b>
+        </span>
+      </div>
+      <canvas id="obliquityCanvas" width="620" height="400"></canvas>
+      <canvas id="obliquityTimelineCanvas" width="620" height="110"></canvas>
+      <div id="obl-controls">
+        <button id="oblBtnPlay">&#9646;&#9646; PAUSE</button>
+        <label>
+          SPEED
+          <input type="range" id="oblSpeedSlider" min="0" max="100" value="28">
+          <span id="oblSpeedVal"></span>
+        </label>
+        <button id="oblBtnReset">&#8635; RESET</button>
+        <button id="oblBtnSound">&#9834; SOUND</button>
+      </div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#f5c842"></span>Rotation Axis</span>
+        <span><span class="legend-dot" style="background:#50a0e0"></span>Ecliptic Plane</span>
+        <span><span class="legend-dot" style="background:#3a8060"></span>Earth</span>
+      </div>
+    </div>
 
-    let activePage = 'orbit';
+    <!-- Page 3: Climatic Precession -->
+    <div id="page-precession" class="page" style="display:none">
+      <div class="question">
+        <h1>Is it Summer when we are Close?</h1>
+      </div>
+      <div id="pre-stats">
+        <span class="column1">
+          <div>TIME</div><b id="prStatTime">0 kyr BP</b>
+        </span>
+        <span class="column2">
+          <div>PRECESSION INDEX</div><b id="prStatIdx">+0.01628</b>
+        </span>
+        <span class="column3">
+          <div>LONGITUDE ϖ</div><b id="prStatPibar">102.92°</b>
+        </span>
+      </div>
+      <canvas id="precessionCanvas" width="620" height="400"></canvas>
+      <canvas id="precessionTimelineCanvas" width="620" height="110"></canvas>
+      <div id="pre-controls">
+        <button id="prBtnPlay">&#9646;&#9646; PAUSE</button>
+        <label>
+          SPEED
+          <input type="range" id="prSpeedSlider" min="0" max="100" value="20">
+          <span id="prSpeedVal"></span>
+        </label>
+        <button id="prBtnReset">&#8635; RESET</button>
+        <button id="prBtnSound">&#9834; SOUND</button>
+      </div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#e05050"></span>Perihelion</span>
+        <span><span class="legend-dot" style="background:#50a0e0"></span>Aphelion</span>
+        <span><span class="legend-dot" style="background:#c07030; border-radius:0"></span> NH summer near sun</span>
+        <span><span class="legend-dot" style="background:#3060b0; border-radius:0"></span> NH winter near sun</span>
+      </div>
+    </div>
 
-    function showPage(name) {
-      if (name !== 'orbit' && soundOn && oscillator) {
-        oscillator.stop(); oscillator = null; soundOn = false;
-        document.getElementById('btnSound').textContent = '♩ SOUND';
+    <!-- Page 4: Axial Precession -->
+    <div id="page-axial" class="page" style="display:none">
+      <div class="question">
+        <h1>Which way does the Earth's Axis Point?</h1>
+      </div>
+      <div id="ax-stats">
+        <span class="column1">
+          <div>TIME</div><b id="axStatTime">0 kyr BP</b>
+        </span>
+        <span class="column2">
+          <div>ψ ANGLE</div><b id="axStatPsi">0.0°</b>
+        </span>
+        <span class="column3">
+          <div>POLE STAR</div><b id="axStatStar">Polaris</b>
+        </span>
+      </div>
+      <canvas id="axialCanvas" width="620" height="400"
+        style="background:#04080f;border:1px solid #1a2a3a;display:block"></canvas>
+      <canvas id="axialTimelineCanvas" width="620" height="110"
+        style="background:#04080f;border:1px solid #1a2a3a;display:block;cursor:pointer"></canvas>
+      <div id="ax-controls">
+        <button id="axBtnPlay">&#9646;&#9646; PAUSE</button>
+        <label>
+          SPEED
+          <input type="range" id="axSpeedSlider" min="0" max="100" value="28">
+          <span id="axSpeedVal"></span>
+        </label>
+        <button id="axBtnReset">&#8635; RESET</button>
+        <button id="axBtnSound">&#9834; SOUND</button>
+      </div>
+      <div class="legend">
+        <span><span style="color:#f5c842;font-weight:bold;margin-right:4px">✕</span>Rotation Axis / N Pole</span>
+        <span><span class="legend-dot" style="background:rgba(52,118,198,0.8)"></span>Precession Cone</span>
+        <span><span class="legend-dot" style="background:#9060c0"></span>Polaris</span>
+        <span><span class="legend-dot" style="background:#50c8a0"></span>Thuban</span>
+        <span><span class="legend-dot" style="background:#e07050"></span>Vega</span>
+        <span><span class="legend-dot" style="background:#6090d0"></span>Deneb</span>
+      </div>
+    </div>
+    <footer style="margin-top:3px;width:100%;font-family:'Courier New',monospace">
+      <div id="citToggle" onclick="document.getElementById('citBody').classList.toggle('cit-open')">CITATIONS &#9662;
+      </div>
+      <div id="citBody">
+        <div style="padding:10px 20px 14px">
+          <div>Eccentricity: Laskar J., Fienga A., Gastineau M., Manche H. (2011). <a
+              href="https://doi.org/10.1051/0004-6361/201116836" target="_blank">La2010: a new orbital solution for the
+              long-term motion of the Earth.</a> A&amp;A 532, A89. Data: <a
+              href="https://ssp.imcce.fr/insola/earth/online/earth/La2010/" target="_blank">IMCCE La2010d</a></div>
+          <div>Obliquity + Precession: Laskar J., Robutel P., Joutel F., Gastineau M., Correia A.C.M., Levrard B.
+            (2004). <a href="https://doi.org/10.1051/0004-6361:20048139" target="_blank">A long-term numerical solution
+              for the insolation quantities of the Earth.</a> A&amp;A 428, 261-285. Data: <a
+              href="https://ssp.imcce.fr/insola/earth/online/earth/La2004/" target="_blank">IMCCE La2004</a></div>
+          <div>Axial Precession rate: Berger A.L. (1978). <a
+              href="https://doi.org/10.1175/1520-0469(1978)035%3C2362:LTVODI%3E2.0.CO;2" target="_blank">Long-term
+              variations of daily insolation and Quaternary climatic changes.</a> J. Atmos. Sci. 35, 2362-2367.</div>
+        </div>
+      </div>
+    </footer>
+    <script src="La2010.js"></script>
+    <script>
+      // ─── Tab navigation ───────────────────────────────────────────────────────────
+
+      let activePage = 'orbit';
+
+      function showPage(name) {
+        if (name !== 'orbit' && soundOn && oscillator) {
+          oscillator.stop(); oscillator = null; soundOn = false;
+          document.getElementById('btnSound').textContent = '♩ SOUND';
+        }
+        if (name !== 'obliquity' && oblSoundOn && oblOscillator) {
+          oblOscillator.stop(); oblOscillator = null; oblSoundOn = false;
+          document.getElementById('oblBtnSound').textContent = '♩ SOUND';
+        }
+        if (name !== 'precession' && prSoundOn && prOscillator) {
+          prOscillator.stop(); prOscillator = null; prSoundOn = false;
+          document.getElementById('prBtnSound').textContent = '♩ SOUND';
+        }
+        if (name !== 'axial' && axSoundOn && axOscillator) {
+          axOscillator.stop(); axOscillator = null; axSoundOn = false;
+          document.getElementById('axBtnSound').textContent = '♩ SOUND';
+        }
+        activePage = name;
+        document.getElementById('page-orbit').style.display = name === 'orbit' ? '' : 'none';
+        document.getElementById('page-obliquity').style.display = name === 'obliquity' ? '' : 'none';
+        document.getElementById('page-precession').style.display = name === 'precession' ? '' : 'none';
+        document.getElementById('page-axial').style.display = name === 'axial' ? '' : 'none';
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        lastTimestamp = null;
+        oblLastTimestamp = null;
+        prLastTimestamp = null;
+        axLastTimestamp = null;
       }
-      if (name !== 'obliquity' && oblSoundOn && oblOscillator) {
-        oblOscillator.stop(); oblOscillator = null; oblSoundOn = false;
-        document.getElementById('oblBtnSound').textContent = '♩ SOUND';
+
+      // ─── Canvas setup ─────────────────────────────────────────────────────────────
+
+      const orbitCanvas = document.getElementById('orbitCanvas');
+      const timelineCanvas = document.getElementById('timelineCanvas');
+      const oc = orbitCanvas.getContext('2d');
+      const tc = timelineCanvas.getContext('2d');
+
+      const oblCanvas = document.getElementById('obliquityCanvas');
+      const oblTlCanvas = document.getElementById('obliquityTimelineCanvas');
+      const oblC = oblCanvas.getContext('2d');
+      const oblTc = oblTlCanvas.getContext('2d');
+
+      const prCanvas = document.getElementById('precessionCanvas');
+      const prTlCanvas = document.getElementById('precessionTimelineCanvas');
+      const prC = prCanvas.getContext('2d');
+      const prTc = prTlCanvas.getContext('2d');
+
+      const axCanvas = document.getElementById('axialCanvas');
+      const axTlCanvas = document.getElementById('axialTimelineCanvas');
+      const axC = axCanvas.getContext('2d');
+      const axTc = axTlCanvas.getContext('2d');
+
+      const OW = orbitCanvas.width, OH = orbitCanvas.height;
+      const TW = timelineCanvas.width, TH = timelineCanvas.height;
+
+      // ─── Orbit state ──────────────────────────────────────────────────────────────
+
+      const T_MIN = 0;
+      const T_MAX = -1_000_000;
+      let currentT = T_MAX;
+      let playing = true;
+      let lastTimestamp = null;
+
+      // ─── Obliquity state ──────────────────────────────────────────────────────────
+
+      const OBL_T_MAX = -1_000_000;
+      let oblCurrentT = OBL_T_MAX;
+      let oblPlaying = true;
+      let oblLastTimestamp = null;
+
+      // ─── Axial precession state ───────────────────────────────────────────────────
+
+      const AX_T_MAX = -1_000_000;
+      let axCurrentT = AX_T_MAX;
+      let axPlaying = true;
+      let axLastTimestamp = null;
+
+      // ─── Precession state ─────────────────────────────────────────────────────────
+
+      const PR_T_MAX = -1_000_000;
+      let prCurrentT = PR_T_MAX;
+      let prPlaying = true;
+      let prLastTimestamp = null;
+
+      // ─── Orbit speed slider ───────────────────────────────────────────────────────
+
+      const speedSlider = document.getElementById('speedSlider');
+      const speedVal = document.getElementById('speedVal');
+
+      function getSpeed() {
+        const v = speedSlider.value / 100;
+        return Math.round(10 ** (1 + v * 3));
       }
-      if (name !== 'precession' && prSoundOn && prOscillator) {
-        prOscillator.stop(); prOscillator = null; prSoundOn = false;
-        document.getElementById('prBtnSound').textContent = '♩ SOUND';
+
+      function updateSpeedLabel() {
+        const s = getSpeed();
+        speedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
       }
-      if (name !== 'axial' && axSoundOn && axOscillator) {
-        axOscillator.stop(); axOscillator = null; axSoundOn = false;
-        document.getElementById('axBtnSound').textContent = '♩ SOUND';
+      speedSlider.addEventListener('input', updateSpeedLabel);
+      updateSpeedLabel();
+
+      // ─── Obliquity speed slider ───────────────────────────────────────────────────
+
+      const oblSpeedSlider = document.getElementById('oblSpeedSlider');
+      const oblSpeedVal = document.getElementById('oblSpeedVal');
+
+      function getOblSpeed() {
+        const v = oblSpeedSlider.value / 100;
+        return Math.round(10 ** (1 + v * 3));
       }
-      activePage = name;
-      document.getElementById('page-orbit').style.display = name === 'orbit' ? '' : 'none';
-      document.getElementById('page-obliquity').style.display = name === 'obliquity' ? '' : 'none';
-      document.getElementById('page-precession').style.display = name === 'precession' ? '' : 'none';
-      document.getElementById('page-axial').style.display = name === 'axial' ? '' : 'none';
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
-      lastTimestamp = null;
-      oblLastTimestamp = null;
-      prLastTimestamp = null;
-      axLastTimestamp = null;
-    }
 
-    // ─── Canvas setup ─────────────────────────────────────────────────────────────
-
-    const orbitCanvas = document.getElementById('orbitCanvas');
-    const timelineCanvas = document.getElementById('timelineCanvas');
-    const oc = orbitCanvas.getContext('2d');
-    const tc = timelineCanvas.getContext('2d');
-
-    const oblCanvas = document.getElementById('obliquityCanvas');
-    const oblTlCanvas = document.getElementById('obliquityTimelineCanvas');
-    const oblC = oblCanvas.getContext('2d');
-    const oblTc = oblTlCanvas.getContext('2d');
-
-    const prCanvas = document.getElementById('precessionCanvas');
-    const prTlCanvas = document.getElementById('precessionTimelineCanvas');
-    const prC = prCanvas.getContext('2d');
-    const prTc = prTlCanvas.getContext('2d');
-
-    const axCanvas = document.getElementById('axialCanvas');
-    const axTlCanvas = document.getElementById('axialTimelineCanvas');
-    const axC = axCanvas.getContext('2d');
-    const axTc = axTlCanvas.getContext('2d');
-
-    const OW = orbitCanvas.width, OH = orbitCanvas.height;
-    const TW = timelineCanvas.width, TH = timelineCanvas.height;
-
-    // ─── Orbit state ──────────────────────────────────────────────────────────────
-
-    const T_MIN = 0;
-    const T_MAX = -1_000_000;
-    let currentT = T_MAX;
-    let playing = true;
-    let lastTimestamp = null;
-
-    // ─── Obliquity state ──────────────────────────────────────────────────────────
-
-    const OBL_T_MAX = -1_000_000;
-    let oblCurrentT = OBL_T_MAX;
-    let oblPlaying = true;
-    let oblLastTimestamp = null;
-
-    // ─── Axial precession state ───────────────────────────────────────────────────
-
-    const AX_T_MAX = -1_000_000;
-    let axCurrentT = AX_T_MAX;
-    let axPlaying = true;
-    let axLastTimestamp = null;
-
-    // ─── Precession state ─────────────────────────────────────────────────────────
-
-    const PR_T_MAX = -1_000_000;
-    let prCurrentT = PR_T_MAX;
-    let prPlaying = true;
-    let prLastTimestamp = null;
-
-    // ─── Orbit speed slider ───────────────────────────────────────────────────────
-
-    const speedSlider = document.getElementById('speedSlider');
-    const speedVal = document.getElementById('speedVal');
-
-    function getSpeed() {
-      const v = speedSlider.value / 100;
-      return Math.round(10 ** (1 + v * 3));
-    }
-
-    function updateSpeedLabel() {
-      const s = getSpeed();
-      speedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
-    }
-    speedSlider.addEventListener('input', updateSpeedLabel);
-    updateSpeedLabel();
-
-    // ─── Obliquity speed slider ───────────────────────────────────────────────────
-
-    const oblSpeedSlider = document.getElementById('oblSpeedSlider');
-    const oblSpeedVal = document.getElementById('oblSpeedVal');
-
-    function getOblSpeed() {
-      const v = oblSpeedSlider.value / 100;
-      return Math.round(10 ** (1 + v * 3));
-    }
-
-    function updateOblSpeedLabel() {
-      const s = getOblSpeed();
-      oblSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
-    }
-    oblSpeedSlider.addEventListener('input', updateOblSpeedLabel);
-    updateOblSpeedLabel();
-
-    // ─── Precession speed slider ──────────────────────────────────────────────────
-
-    const prSpeedSlider = document.getElementById('prSpeedSlider');
-    const prSpeedVal = document.getElementById('prSpeedVal');
-
-    function getPrSpeed() {
-      const v = prSpeedSlider.value / 100;
-      return Math.round(1 + v * 14);
-    }
-
-    function updatePrSpeedLabel() {
-      const s = getPrSpeed();
-      prSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
-    }
-    prSpeedSlider.addEventListener('input', updatePrSpeedLabel);
-    updatePrSpeedLabel();
-
-    // ─── Axial precession speed slider ────────────────────────────────────────────
-
-    const axSpeedSlider = document.getElementById('axSpeedSlider');
-    const axSpeedVal = document.getElementById('axSpeedVal');
-
-    function getAxSpeed() {
-      return Math.round(1 + (axSpeedSlider.value / 100) * 14);
-    }
-
-    function updateAxSpeedLabel() {
-      axSpeedVal.textContent = getAxSpeed() + ' kyr/s';
-    }
-    axSpeedSlider.addEventListener('input', updateAxSpeedLabel);
-    updateAxSpeedLabel();
-
-    // ─── Precompute timelines ─────────────────────────────────────────────────────
-
-    const TIMELINE_SAMPLES = 201;
-
-    const timelineData = new Float64Array(TIMELINE_SAMPLES);
-    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-      timelineData[i] = earthEccentricity(-i * 5000);
-    }
-    const eccMax = Math.max(...timelineData) * 1.05;
-
-    const OBL_MIN_DEG = 21.0;
-    const OBL_MAX_DEG = 24.5;
-    const OBL_RANGE = OBL_MAX_DEG - OBL_MIN_DEG;
-
-    const obliquityData = new Float64Array(TIMELINE_SAMPLES);
-    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-      obliquityData[i] = earthObliquity(-i * 5000) * (180 / Math.PI);
-    }
-
-    const PREC_MAX = 0.07;
-    const precessionData = new Float64Array(TIMELINE_SAMPLES);
-    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-      precessionData[i] = earthPrecessionIndex(-i * 5000);
-    }
-
-    // ψ(t) = _PSI_P * t * _AS2RAD; pole star angles computed from t_closest
-    const POLE_STARS = [
-      { name: 'Polaris', psi:  0,       color: '#9060c0' },  // ψ(0) by definition
-      { name: 'Thuban',  psi: -1.168,   color: '#50c8a0' },  // ψ(−4800 yr)
-      { name: 'Vega',    psi:  3.353,   color: '#e07050' },  // ψ(+13727 yr)
-      { name: 'Deneb',   psi:  1.900,   color: '#6090d0' },  // ψ(+7800 yr)
-    ];
-
-    const axialData = new Float64Array(TIMELINE_SAMPLES);
-    for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-      axialData[i] = earthAxialPrecession(-i * 5000);
-    }
-
-    // ─── Shared helpers ───────────────────────────────────────────────────────────
-
-    const TL_PAD_L = 50, TL_PAD_R = 16, TL_PAD_T = 14, TL_PAD_B = 28;
-    const TL_W = TW - TL_PAD_L - TL_PAD_R;
-    const TL_H = TH - TL_PAD_T - TL_PAD_B;
-
-    const STAR_SEEDS = [[42, 17], [87, 63], [154, 290], [230, 40], [390, 180], [500, 80], [60, 300], [470, 320], [300, 20], [140, 350], [530, 130], [20, 200], [600, 260], [350, 340], [80, 140]];
-
-    function drawStars(ctx) {
-      ctx.fillStyle = 'rgba(200,220,255,0.45)';
-      for (const [sx, sy] of STAR_SEEDS) {
-        ctx.beginPath();
-        ctx.arc(sx, sy, 0.8, 0, Math.PI * 2);
-        ctx.fill();
+      function updateOblSpeedLabel() {
+        const s = getOblSpeed();
+        oblSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
       }
-    }
+      oblSpeedSlider.addEventListener('input', updateOblSpeedLabel);
+      updateOblSpeedLabel();
 
-    function label(ctx, text, x, y, color, size, align = 'left') {
-      ctx.save();
-      ctx.font = `${size} 'Courier New', monospace`;
-      ctx.fillStyle = color;
-      ctx.textAlign = align;
-      ctx.fillText(text, x, y);
-      ctx.restore();
-    }
+      // ─── Precession speed slider ──────────────────────────────────────────────────
 
-    // ─── Orbital geometry ─────────────────────────────────────────────────────────
+      const prSpeedSlider = document.getElementById('prSpeedSlider');
+      const prSpeedVal = document.getElementById('prSpeedVal');
 
-    const A_DISPLAY = 155;
-    const SUN_X = OW / 2 + 30, SUN_Y = OH / 2;
+      function getPrSpeed() {
+        const v = prSpeedSlider.value / 100;
+        return Math.round(1 + v * 14);
+      }
 
-    function ellipseParams(e) {
-      const a = A_DISPLAY;
-      const b = a * Math.sqrt(1 - e * e);
-      const c = a * e;
-      return { a, b, c };
-    }
+      function updatePrSpeedLabel() {
+        const s = getPrSpeed();
+        prSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
+      }
+      prSpeedSlider.addEventListener('input', updatePrSpeedLabel);
+      updatePrSpeedLabel();
 
-    // ─── Draw orbit ───────────────────────────────────────────────────────────────
+      // ─── Axial precession speed slider ────────────────────────────────────────────
 
-    function drawOrbit(e) {
-      oc.clearRect(0, 0, OW, OH);
-      const { a, b, c } = ellipseParams(e);
-      const eccCx = SUN_X - c;
-      const sunX = SUN_X, sunY = SUN_Y;
-      const emptyFocusX = SUN_X - 2 * c, emptyFocusY = SUN_Y;
-      const cy = SUN_Y;
+      const axSpeedSlider = document.getElementById('axSpeedSlider');
+      const axSpeedVal = document.getElementById('axSpeedVal');
 
-      drawStars(oc);
+      function getAxSpeed() {
+        return Math.round(1 + (axSpeedSlider.value / 100) * 14);
+      }
 
-      oc.save();
-      oc.setLineDash([4, 6]);
-      oc.strokeStyle = '#1a3050'; oc.lineWidth = 1;
-      oc.beginPath(); oc.moveTo(eccCx - a - 20, cy); oc.lineTo(eccCx + a + 20, cy); oc.stroke();
-      oc.setLineDash([]);
-      oc.restore();
+      function updateAxSpeedLabel() {
+        axSpeedVal.textContent = getAxSpeed() + ' kyr/s';
+      }
+      axSpeedSlider.addEventListener('input', updateAxSpeedLabel);
+      updateAxSpeedLabel();
 
-      oc.save();
-      oc.setLineDash([2, 8]);
-      oc.strokeStyle = '#111e2e'; oc.lineWidth = 1;
-      oc.beginPath(); oc.moveTo(eccCx, cy - b - 20); oc.lineTo(eccCx, cy + b + 20); oc.stroke();
-      oc.setLineDash([]);
-      oc.restore();
+      // ─── Precompute timelines ─────────────────────────────────────────────────────
 
-      const grad = oc.createLinearGradient(eccCx - a, cy, eccCx + a, cy);
-      grad.addColorStop(0, '#1a4a80'); grad.addColorStop(0.5, '#1e5a9a'); grad.addColorStop(1, '#1a4a80');
-      oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
-      oc.strokeStyle = grad; oc.lineWidth = 1.8; oc.stroke();
+      const TIMELINE_SAMPLES = 201;
 
-      oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
-      oc.fillStyle = 'rgba(10,30,60,0.25)'; oc.fill();
+      const timelineData = new Float64Array(TIMELINE_SAMPLES);
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        timelineData[i] = earthEccentricity(-i * 5000);
+      }
+      const eccMax = Math.max(...timelineData) * 1.05;
 
-      oc.beginPath(); oc.moveTo(sunX, sunY); oc.lineTo(emptyFocusX, emptyFocusY);
-      oc.strokeStyle = 'rgba(80,120,160,0.3)'; oc.lineWidth = 1; oc.stroke();
+      const OBL_MIN_DEG = 21.0;
+      const OBL_MAX_DEG = 24.5;
+      const OBL_RANGE = OBL_MAX_DEG - OBL_MIN_DEG;
 
-      const _xs = 5;
-      oc.save(); oc.strokeStyle = '#5090dd'; oc.lineWidth = 1.5;
-      oc.beginPath();
-      oc.moveTo(emptyFocusX - _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX + _xs, emptyFocusY + _xs);
-      oc.moveTo(emptyFocusX + _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX - _xs, emptyFocusY + _xs);
-      oc.stroke(); oc.restore();
-      label(oc, 'F₂', emptyFocusX, emptyFocusY + 18, '#5080aa', '0.75rem');
+      const obliquityData = new Float64Array(TIMELINE_SAMPLES);
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        obliquityData[i] = earthObliquity(-i * 5000) * (180 / Math.PI);
+      }
 
-      const sunGlow = oc.createRadialGradient(sunX, sunY, 0, sunX, sunY, 22);
-      sunGlow.addColorStop(0, 'rgba(255,220,80,0.9)');
-      sunGlow.addColorStop(0.5, 'rgba(255,180,40,0.3)');
-      sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
-      oc.beginPath(); oc.arc(sunX, sunY, 22, 0, Math.PI * 2); oc.fillStyle = sunGlow; oc.fill();
+      const PREC_MAX = 0.07;
+      const precessionData = new Float64Array(TIMELINE_SAMPLES);
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        precessionData[i] = earthPrecessionIndex(-i * 5000);
+      }
 
-      oc.beginPath(); oc.arc(sunX, sunY, 8, 0, Math.PI * 2);
-      oc.fillStyle = '#f5c842'; oc.fill();
-      oc.strokeStyle = '#ffe080'; oc.lineWidth = 1.5; oc.stroke();
-      label(oc, 'F₁', sunX, sunY + 26, '#c8a040', '0.75rem');
+      // ψ(t) = _PSI_P * t * _AS2RAD; pole star angles computed from t_closest
+      const POLE_STARS = [
+        { name: 'Polaris', psi: 0, color: '#9060c0' },  // ψ(0) by definition
+        { name: 'Thuban', psi: -1.168, color: '#50c8a0' },  // ψ(−4800 yr)
+        { name: 'Vega', psi: 3.353, color: '#e07050' },  // ψ(+13727 yr)
+        { name: 'Deneb', psi: 1.900, color: '#6090d0' },  // ψ(+7800 yr)
+      ];
 
-      const perX = eccCx + a, perY = cy;
-      oc.beginPath(); oc.arc(perX, perY, 5, 0, Math.PI * 2); oc.fillStyle = '#e05050'; oc.fill();
-      label(oc, 'PERIHELION', perX + 10, perY, '#e07070', '0.72rem');
+      const axialData = new Float64Array(TIMELINE_SAMPLES);
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        axialData[i] = earthAxialPrecession(-i * 5000);
+      }
 
-      const apoX = eccCx - a, apoY = cy;
-      oc.beginPath(); oc.arc(apoX, apoY, 5, 0, Math.PI * 2); oc.fillStyle = '#50a0e0'; oc.fill();
-      label(oc, 'APHELION', apoX - 10, apoY, '#70b0e0', '0.72rem', 'right');
+      // ─── Shared helpers ───────────────────────────────────────────────────────────
 
-      const eccBarW = 120, eccBarH = 8;
-      const eccBarX = OW - eccBarW - 16, eccBarY = 18;
-      oc.fillStyle = '#0d1e30'; oc.fillRect(eccBarX, eccBarY, eccBarW, eccBarH);
-      oc.fillStyle = eccColor(e); oc.fillRect(eccBarX, eccBarY, eccBarW * (e / 0.065), eccBarH);
-      oc.strokeStyle = '#2a4a6a'; oc.lineWidth = 1; oc.strokeRect(eccBarX, eccBarY, eccBarW, eccBarH);
-      label(oc, `e = ${e.toFixed(6)}`, eccBarX + eccBarW / 2, eccBarY - 6, '#9abedf', '0.78rem', 'center');
-      label(oc, 'e max ≈ 0.065', eccBarX + eccBarW, eccBarY + 20, '#4a6a88', '0.65rem', 'right');
-    }
+      const TL_PAD_L = 50, TL_PAD_R = 16, TL_PAD_T = 14, TL_PAD_B = 28;
+      const TL_W = TW - TL_PAD_L - TL_PAD_R;
+      const TL_H = TH - TL_PAD_T - TL_PAD_B;
 
-    function eccColor(e) {
-      const t = e / 0.065;
-      return `rgb(${Math.round(30 + t * 200)},${Math.round(100 - t * 60)},${Math.round(180 - t * 120)})`;
-    }
+      const STAR_SEEDS = [[42, 17], [87, 63], [154, 290], [230, 40], [390, 180], [500, 80], [60, 300], [470, 320], [300, 20], [140, 350], [530, 130], [20, 200], [600, 260], [350, 340], [80, 140]];
 
-    // ─── Draw obliquity diagram ───────────────────────────────────────────────────
+      function drawStars(ctx) {
+        ctx.fillStyle = 'rgba(200,220,255,0.45)';
+        for (const [sx, sy] of STAR_SEEDS) {
+          ctx.beginPath();
+          ctx.arc(sx, sy, 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
 
-    function drawObliquityDiagram(oblDeg) {
-      oblC.clearRect(0, 0, OW, OH);
-      const cx = OW / 2, cy = OH / 2;
-      const earthR = 85, axisLen = 130;
-      const oblRad = oblDeg * Math.PI / 180;
+      function label(ctx, text, x, y, color, size, align = 'left') {
+        ctx.save();
+        ctx.font = `${size} 'Courier New', monospace`;
+        ctx.fillStyle = color;
+        ctx.textAlign = align;
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
 
-      drawStars(oblC);
+      // ─── Orbital geometry ─────────────────────────────────────────────────────────
 
-      // Ecliptic plane
-      oblC.save();
-      oblC.setLineDash([6, 4]);
-      oblC.strokeStyle = '#70c0f3'; oblC.lineWidth = 1;
-      oblC.beginPath(); oblC.moveTo(cx - 270, cy); oblC.lineTo(cx + 270, cy); oblC.stroke();
-      oblC.setLineDash([]);
-      oblC.restore();
-      label(oblC, 'ECLIPTIC PLANE', cx + 168, cy - 7, '#70c0f3', '0.65rem');
+      const A_DISPLAY = 155;
+      const SUN_X = OW / 2 + 30, SUN_Y = OH / 2;
 
-      // Ecliptic normal (faint vertical)
-      oblC.save();
-      oblC.setLineDash([2, 8]);
-      oblC.strokeStyle = 'rgba(50,100,140,0.8)'; oblC.lineWidth = 1;
-      oblC.beginPath(); oblC.moveTo(cx, cy - axisLen - 20); oblC.lineTo(cx, cy + axisLen + 20); oblC.stroke();
-      oblC.setLineDash([]);
-      oblC.restore();
+      function ellipseParams(e) {
+        const a = A_DISPLAY;
+        const b = a * Math.sqrt(1 - e * e);
+        const c = a * e;
+        return { a, b, c };
+      }
 
-      // Earth atmosphere glow
-      const earthGlow = oblC.createRadialGradient(cx, cy, earthR * 0.8, cx, cy, earthR * 1.35);
-      earthGlow.addColorStop(0, 'rgba(40,100,200,0.3)');
-      earthGlow.addColorStop(1, 'rgba(20,60,140,0)');
-      oblC.beginPath(); oblC.arc(cx, cy, earthR * 1.35, 0, Math.PI * 2);
-      oblC.fillStyle = earthGlow; oblC.fill();
+      // ─── Draw orbit ───────────────────────────────────────────────────────────────
 
-      // Earth body
-      const earthGrad = oblC.createRadialGradient(cx - earthR * 0.3, cy - earthR * 0.3, earthR * 0.1, cx, cy, earthR);
-      earthGrad.addColorStop(0, '#3a8060');
-      earthGrad.addColorStop(0.5, '#1e5070');
-      earthGrad.addColorStop(1, '#0e2840');
-      oblC.beginPath(); oblC.arc(cx, cy, earthR, 0, Math.PI * 2);
-      oblC.fillStyle = earthGrad; oblC.fill();
-      oblC.strokeStyle = '#2a6090'; oblC.lineWidth = 1.5; oblC.stroke();
+      function drawOrbit(e) {
+        oc.clearRect(0, 0, OW, OH);
+        const { a, b, c } = ellipseParams(e);
+        const eccCx = SUN_X - c;
+        const sunX = SUN_X, sunY = SUN_Y;
+        const emptyFocusX = SUN_X - 2 * c, emptyFocusY = SUN_Y;
+        const cy = SUN_Y;
 
-      // Equator line (perpendicular to axis)
-      const eqDx = Math.cos(oblRad) * earthR;
-      const eqDy = Math.sin(oblRad) * earthR;
-      oblC.save();
-      oblC.beginPath();
-      oblC.moveTo(cx - eqDx, cy - eqDy); oblC.lineTo(cx + eqDx, cy + eqDy);
-      oblC.strokeStyle = 'rgba(120,200,160,0.5)'; oblC.lineWidth = 1.2; oblC.stroke();
-      oblC.restore();
+        drawStars(oc);
 
-      // Rotation axis (north = cx + sin*len, cy - cos*len)
-      const axNx = Math.sin(oblRad) * axisLen;
-      const axNy = Math.cos(oblRad) * axisLen;
-      oblC.beginPath();
-      oblC.moveTo(cx - axNx, cy + axNy);
-      oblC.lineTo(cx + axNx, cy - axNy);
-      oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 2; oblC.stroke();
+        oc.save();
+        oc.setLineDash([4, 6]);
+        oc.strokeStyle = '#1a3050'; oc.lineWidth = 1;
+        oc.beginPath(); oc.moveTo(eccCx - a - 20, cy); oc.lineTo(eccCx + a + 20, cy); oc.stroke();
+        oc.setLineDash([]);
+        oc.restore();
 
-      label(oblC, 'N', cx + axNx + 6, cy - axNy + 4, '#f5c842', '0.85rem');
-      label(oblC, 'S', cx - axNx - 14, cy + axNy + 4, '#c8a040', '0.75rem');
+        oc.save();
+        oc.setLineDash([2, 8]);
+        oc.strokeStyle = '#111e2e'; oc.lineWidth = 1;
+        oc.beginPath(); oc.moveTo(eccCx, cy - b - 20); oc.lineTo(eccCx, cy + b + 20); oc.stroke();
+        oc.setLineDash([]);
+        oc.restore();
 
-      // Arc showing tilt angle (between ecliptic normal and axis)
-      const arcR = 55;
-      const arcStart = -Math.PI / 2;
-      const arcEnd = -Math.PI / 2 + oblRad;
-      oblC.save();
-      oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 1.5;
-      oblC.beginPath(); oblC.arc(cx, cy, arcR, arcStart, arcEnd); oblC.stroke();
-      oblC.restore();
+        const grad = oc.createLinearGradient(eccCx - a, cy, eccCx + a, cy);
+        grad.addColorStop(0, '#1a4a80'); grad.addColorStop(0.5, '#1e5a9a'); grad.addColorStop(1, '#1a4a80');
+        oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
+        oc.strokeStyle = grad; oc.lineWidth = 1.8; oc.stroke();
 
-      // Tilt label near arc midpoint
-      const midAngle = arcStart + oblRad / 2;
-      const lx = cx + Math.cos(midAngle) * (arcR + 22);
-      const ly = cy + Math.sin(midAngle) * (arcR + 22);
-      label(oblC, `${oblDeg.toFixed(4)}°`, lx + 4, ly - 55, '#e0f0ff', '1.0rem');
+        oc.beginPath(); oc.ellipse(eccCx, cy, a, b, 0, 0, Math.PI * 2);
+        oc.fillStyle = 'rgba(10,30,60,0.25)'; oc.fill();
 
-      // Obliquity bar (top right)
-      const barW = 120, barH = 8;
-      const barX = OW - barW - 16, barY = 18;
-      oblC.fillStyle = '#0d1e30'; oblC.fillRect(barX, barY, barW, barH);
-      oblC.fillStyle = oblColor(oblDeg);
-      oblC.fillRect(barX, barY, barW * Math.max(0, Math.min(1, (oblDeg - OBL_MIN_DEG) / OBL_RANGE)), barH);
-      oblC.strokeStyle = '#2a4a6a'; oblC.lineWidth = 1; oblC.strokeRect(barX, barY, barW, barH);
-      label(oblC, `ε = ${oblDeg.toFixed(4)}°`, barX + barW / 2, barY - 4, '#9abedf', '0.78rem', 'center');
-      label(oblC, '21° – 24.5° range', barX + barW, barY + 20, '#4a6a88', '0.65rem', 'right');
-    }
+        oc.beginPath(); oc.moveTo(sunX, sunY); oc.lineTo(emptyFocusX, emptyFocusY);
+        oc.strokeStyle = 'rgba(80,120,160,0.3)'; oc.lineWidth = 1; oc.stroke();
 
-    function oblColor(oblDeg) {
-      const t = (oblDeg - OBL_MIN_DEG) / OBL_RANGE;
-      return `rgb(${Math.round(60 + t * 160)},${Math.round(120 - t * 60)},${Math.round(180 - t * 130)})`;
-    }
+        const _xs = 5;
+        oc.save(); oc.strokeStyle = '#5090dd'; oc.lineWidth = 1.5;
+        oc.beginPath();
+        oc.moveTo(emptyFocusX - _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX + _xs, emptyFocusY + _xs);
+        oc.moveTo(emptyFocusX + _xs, emptyFocusY - _xs); oc.lineTo(emptyFocusX - _xs, emptyFocusY + _xs);
+        oc.stroke(); oc.restore();
+        label(oc, 'F₂', emptyFocusX, emptyFocusY + 18, '#5080aa', '0.75rem');
 
-    // ─── Draw precession diagram ──────────────────────────────────────────────────
+        const sunGlow = oc.createRadialGradient(sunX, sunY, 0, sunX, sunY, 22);
+        sunGlow.addColorStop(0, 'rgba(255,220,80,0.9)');
+        sunGlow.addColorStop(0.5, 'rgba(255,180,40,0.3)');
+        sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
+        oc.beginPath(); oc.arc(sunX, sunY, 22, 0, Math.PI * 2); oc.fillStyle = sunGlow; oc.fill();
 
-    const SEASON_MARKERS = [
-      { theta: 0,               label1: 'VERNAL',    label2: 'EQUINOX',   color: '#60a060', ax:  1, ay:  0 },
-      { theta: Math.PI / 2,     label1: 'SUMMER',    label2: 'SOLSTICE',  color: '#c09838', ax:  0, ay: -1 },
-      { theta: Math.PI,         label1: 'AUTUMNAL',  label2: 'EQUINOX',   color: '#a07840', ax: -1, ay:  0 },
-      { theta: 3 * Math.PI / 2, label1: 'WINTER',    label2: 'SOLSTICE',  color: '#4878c0', ax:  0, ay:  1 },
-    ];
+        oc.beginPath(); oc.arc(sunX, sunY, 8, 0, Math.PI * 2);
+        oc.fillStyle = '#f5c842'; oc.fill();
+        oc.strokeStyle = '#ffe080'; oc.lineWidth = 1.5; oc.stroke();
+        label(oc, 'F₁', sunX, sunY + 26, '#c8a040', '0.75rem');
 
-    function drawPrecessionDiagram(pibarRad, prIdx) {
-      prC.clearRect(0, 0, OW, OH);
-      const cx = OW / 2, cy = OH / 2;
-      const orbitR = 135;
+        const perX = eccCx + a, perY = cy;
+        oc.beginPath(); oc.arc(perX, perY, 5, 0, Math.PI * 2); oc.fillStyle = '#e05050'; oc.fill();
+        label(oc, 'PERIHELION', perX + 10, perY, '#e07070', '0.72rem');
 
-      drawStars(prC);
+        const apoX = eccCx - a, apoY = cy;
+        oc.beginPath(); oc.arc(apoX, apoY, 5, 0, Math.PI * 2); oc.fillStyle = '#50a0e0'; oc.fill();
+        label(oc, 'APHELION', apoX - 10, apoY, '#70b0e0', '0.72rem', 'right');
 
-      // Seasonal half-tints: top (sin>0, NH summer near sun) = warm; bottom = cool
-      prC.beginPath(); prC.moveTo(cx, cy);
-      prC.arc(cx, cy, orbitR + 32, 0, -Math.PI, true);
-      prC.closePath(); prC.fillStyle = 'rgba(160,80,20,0.1)'; prC.fill();
+        const eccBarW = 120, eccBarH = 8;
+        const eccBarX = OW - eccBarW - 16, eccBarY = 18;
+        oc.fillStyle = '#0d1e30'; oc.fillRect(eccBarX, eccBarY, eccBarW, eccBarH);
+        oc.fillStyle = eccColor(e); oc.fillRect(eccBarX, eccBarY, eccBarW * (e / 0.065), eccBarH);
+        oc.strokeStyle = '#2a4a6a'; oc.lineWidth = 1; oc.strokeRect(eccBarX, eccBarY, eccBarW, eccBarH);
+        label(oc, `e = ${e.toFixed(6)}`, eccBarX + eccBarW / 2, eccBarY - 6, '#9abedf', '0.78rem', 'center');
+        label(oc, 'e max ≈ 0.065', eccBarX + eccBarW, eccBarY + 20, '#4a6a88', '0.65rem', 'right');
+      }
 
-      prC.beginPath(); prC.moveTo(cx, cy);
-      prC.arc(cx, cy, orbitR + 32, 0, Math.PI, false);
-      prC.closePath(); prC.fillStyle = 'rgba(20,60,160,0.1)'; prC.fill();
+      function eccColor(e) {
+        const t = e / 0.065;
+        return `rgb(${Math.round(30 + t * 200)},${Math.round(100 - t * 60)},${Math.round(180 - t * 120)})`;
+      }
 
-      // Orbit ring
-      prC.beginPath(); prC.arc(cx, cy, orbitR, 0, Math.PI * 2);
-      prC.strokeStyle = '#1c3c63'; prC.lineWidth = 1; prC.stroke();
+      // ─── Draw obliquity diagram ───────────────────────────────────────────────────
 
-      // Season tick marks and labels
-      for (const m of SEASON_MARKERS) {
-        const mx = cx + Math.cos(m.theta) * orbitR;
-        const my = cy - Math.sin(m.theta) * orbitR;
+      function drawObliquityDiagram(oblDeg) {
+        oblC.clearRect(0, 0, OW, OH);
+        const cx = OW / 2, cy = OH / 2;
+        const earthR = 85, axisLen = 130;
+        const oblRad = oblDeg * Math.PI / 180;
+
+        drawStars(oblC);
+
+        // Ecliptic plane
+        oblC.save();
+        oblC.setLineDash([6, 4]);
+        oblC.strokeStyle = '#70c0f3'; oblC.lineWidth = 1;
+        oblC.beginPath(); oblC.moveTo(cx - 270, cy); oblC.lineTo(cx + 270, cy); oblC.stroke();
+        oblC.setLineDash([]);
+        oblC.restore();
+        label(oblC, 'ECLIPTIC PLANE', cx + 168, cy - 7, '#70c0f3', '0.65rem');
+
+        // Ecliptic normal (faint vertical)
+        oblC.save();
+        oblC.setLineDash([2, 8]);
+        oblC.strokeStyle = 'rgba(50,100,140,0.8)'; oblC.lineWidth = 1;
+        oblC.beginPath(); oblC.moveTo(cx, cy - axisLen - 20); oblC.lineTo(cx, cy + axisLen + 20); oblC.stroke();
+        oblC.setLineDash([]);
+        oblC.restore();
+
+        // Earth atmosphere glow
+        const earthGlow = oblC.createRadialGradient(cx, cy, earthR * 0.8, cx, cy, earthR * 1.35);
+        earthGlow.addColorStop(0, 'rgba(40,100,200,0.3)');
+        earthGlow.addColorStop(1, 'rgba(20,60,140,0)');
+        oblC.beginPath(); oblC.arc(cx, cy, earthR * 1.35, 0, Math.PI * 2);
+        oblC.fillStyle = earthGlow; oblC.fill();
+
+        // Earth body
+        const earthGrad = oblC.createRadialGradient(cx - earthR * 0.3, cy - earthR * 0.3, earthR * 0.1, cx, cy, earthR);
+        earthGrad.addColorStop(0, '#3a8060');
+        earthGrad.addColorStop(0.5, '#1e5070');
+        earthGrad.addColorStop(1, '#0e2840');
+        oblC.beginPath(); oblC.arc(cx, cy, earthR, 0, Math.PI * 2);
+        oblC.fillStyle = earthGrad; oblC.fill();
+        oblC.strokeStyle = '#2a6090'; oblC.lineWidth = 1.5; oblC.stroke();
+
+        // Equator line (perpendicular to axis)
+        const eqDx = Math.cos(oblRad) * earthR;
+        const eqDy = Math.sin(oblRad) * earthR;
+        oblC.save();
+        oblC.beginPath();
+        oblC.moveTo(cx - eqDx, cy - eqDy); oblC.lineTo(cx + eqDx, cy + eqDy);
+        oblC.strokeStyle = 'rgba(120,200,160,0.5)'; oblC.lineWidth = 1.2; oblC.stroke();
+        oblC.restore();
+
+        // Rotation axis (north = cx + sin*len, cy - cos*len)
+        const axNx = Math.sin(oblRad) * axisLen;
+        const axNy = Math.cos(oblRad) * axisLen;
+        oblC.beginPath();
+        oblC.moveTo(cx - axNx, cy + axNy);
+        oblC.lineTo(cx + axNx, cy - axNy);
+        oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 2; oblC.stroke();
+
+        label(oblC, 'N', cx + axNx + 6, cy - axNy + 4, '#f5c842', '0.85rem');
+        label(oblC, 'S', cx - axNx - 14, cy + axNy + 4, '#c8a040', '0.75rem');
+
+        // Arc showing tilt angle (between ecliptic normal and axis)
+        const arcR = 55;
+        const arcStart = -Math.PI / 2;
+        const arcEnd = -Math.PI / 2 + oblRad;
+        oblC.save();
+        oblC.strokeStyle = '#f5c842'; oblC.lineWidth = 1.5;
+        oblC.beginPath(); oblC.arc(cx, cy, arcR, arcStart, arcEnd); oblC.stroke();
+        oblC.restore();
+
+        // Tilt label near arc midpoint
+        const midAngle = arcStart + oblRad / 2;
+        const lx = cx + Math.cos(midAngle) * (arcR + 22);
+        const ly = cy + Math.sin(midAngle) * (arcR + 22);
+        label(oblC, `${oblDeg.toFixed(4)}°`, lx + 4, ly - 55, '#e0f0ff', '1.0rem');
+
+        // Obliquity bar (top right)
+        const barW = 120, barH = 8;
+        const barX = OW - barW - 16, barY = 18;
+        oblC.fillStyle = '#0d1e30'; oblC.fillRect(barX, barY, barW, barH);
+        oblC.fillStyle = oblColor(oblDeg);
+        oblC.fillRect(barX, barY, barW * Math.max(0, Math.min(1, (oblDeg - OBL_MIN_DEG) / OBL_RANGE)), barH);
+        oblC.strokeStyle = '#2a4a6a'; oblC.lineWidth = 1; oblC.strokeRect(barX, barY, barW, barH);
+        label(oblC, `ε = ${oblDeg.toFixed(4)}°`, barX + barW / 2, barY - 4, '#9abedf', '0.78rem', 'center');
+        label(oblC, '21° – 24.5° range', barX + barW, barY + 20, '#4a6a88', '0.65rem', 'right');
+      }
+
+      function oblColor(oblDeg) {
+        const t = (oblDeg - OBL_MIN_DEG) / OBL_RANGE;
+        return `rgb(${Math.round(60 + t * 160)},${Math.round(120 - t * 60)},${Math.round(180 - t * 130)})`;
+      }
+
+      // ─── Draw precession diagram ──────────────────────────────────────────────────
+
+      const SEASON_MARKERS = [
+        { theta: 0, label1: 'VERNAL', label2: 'EQUINOX', color: '#60a060', ax: 1, ay: 0 },
+        { theta: Math.PI / 2, label1: 'SUMMER', label2: 'SOLSTICE', color: '#c09838', ax: 0, ay: -1 },
+        { theta: Math.PI, label1: 'AUTUMNAL', label2: 'EQUINOX', color: '#a07840', ax: -1, ay: 0 },
+        { theta: 3 * Math.PI / 2, label1: 'WINTER', label2: 'SOLSTICE', color: '#4878c0', ax: 0, ay: 1 },
+      ];
+
+      function drawPrecessionDiagram(pibarRad, prIdx) {
+        prC.clearRect(0, 0, OW, OH);
+        const cx = OW / 2, cy = OH / 2;
+        const orbitR = 135;
+
+        drawStars(prC);
+
+        // Seasonal half-tints: top (sin>0, NH summer near sun) = warm; bottom = cool
+        prC.beginPath(); prC.moveTo(cx, cy);
+        prC.arc(cx, cy, orbitR + 32, 0, -Math.PI, true);
+        prC.closePath(); prC.fillStyle = 'rgba(160,80,20,0.1)'; prC.fill();
+
+        prC.beginPath(); prC.moveTo(cx, cy);
+        prC.arc(cx, cy, orbitR + 32, 0, Math.PI, false);
+        prC.closePath(); prC.fillStyle = 'rgba(20,60,160,0.1)'; prC.fill();
+
+        // Orbit ring
+        prC.beginPath(); prC.arc(cx, cy, orbitR, 0, Math.PI * 2);
+        prC.strokeStyle = '#1c3c63'; prC.lineWidth = 1; prC.stroke();
+
+        // Season tick marks and labels
+        for (const m of SEASON_MARKERS) {
+          const mx = cx + Math.cos(m.theta) * orbitR;
+          const my = cy - Math.sin(m.theta) * orbitR;
+          prC.beginPath();
+          prC.moveTo(cx + Math.cos(m.theta) * (orbitR - 9), cy - Math.sin(m.theta) * (orbitR - 9));
+          prC.lineTo(cx + Math.cos(m.theta) * (orbitR + 9), cy - Math.sin(m.theta) * (orbitR + 9));
+          prC.strokeStyle = m.color; prC.lineWidth = 2; prC.stroke();
+          const lx = cx + Math.cos(m.theta) * (orbitR + 30) + m.ax * 8;
+          const ly = cy - Math.sin(m.theta) * (orbitR + 30) + m.ay * 8;
+          label(prC, m.label1, lx, ly - 5, m.color, '0.6rem', 'center');
+          label(prC, m.label2, lx, ly + 9, m.color, '0.6rem', 'center');
+        }
+
+        // Perihelion direction (pibar mod 2π).
+        // ϖ is the heliocentric ecliptic longitude of Earth at perihelion, measured from
+        // the Aries/VE direction.  In the diagram theta=0 (right) is WHERE EARTH IS at VE,
+        // so the Aries reference direction is at theta=π (left).  Adding π converts from
+        // the heliocentric longitude to the correct canvas position.
+        const piMod = ((pibarRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const perAngle = piMod + Math.PI;
+        const perX = cx + Math.cos(perAngle) * orbitR;
+        const perY = cy - Math.sin(perAngle) * orbitR;
+        const apoX = cx - Math.cos(perAngle) * orbitR;
+        const apoY = cy + Math.sin(perAngle) * orbitR;
+
+        // Radial guide to perihelion
+        prC.beginPath(); prC.moveTo(cx, cy); prC.lineTo(perX, perY);
+        prC.save(); prC.setLineDash([3, 5]);
+        prC.strokeStyle = 'rgba(200,80,80,0.45)'; prC.lineWidth = 1; prC.stroke();
+        prC.restore();
+
+        // Aphelion dot
+        prC.beginPath(); prC.arc(apoX, apoY, 5, 0, Math.PI * 2);
+        prC.fillStyle = '#50a0e0'; prC.fill();
+        const apoLabelX = apoX + (apoX < cx ? -8 : 8);
+        label(prC, 'APH', apoLabelX, apoY + 4, '#70b0e0', '0.65rem', apoX < cx ? 'right' : 'left');
+
+        // Sun glow
+        const sunGlow = prC.createRadialGradient(cx, cy, 0, cx, cy, 22);
+        sunGlow.addColorStop(0, 'rgba(255,220,80,0.9)');
+        sunGlow.addColorStop(0.5, 'rgba(255,180,40,0.3)');
+        sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
+        prC.beginPath(); prC.arc(cx, cy, 22, 0, Math.PI * 2);
+        prC.fillStyle = sunGlow; prC.fill();
+        prC.beginPath(); prC.arc(cx, cy, 8, 0, Math.PI * 2);
+        prC.fillStyle = '#f5c842'; prC.fill();
+        prC.strokeStyle = '#ffe080'; prC.lineWidth = 1.5; prC.stroke();
+
+        // Perihelion dot (drawn after sun so it's on top if they overlap)
+        prC.beginPath(); prC.arc(perX, perY, 6, 0, Math.PI * 2);
+        prC.fillStyle = '#e05050'; prC.fill();
+        prC.strokeStyle = '#ff8080'; prC.lineWidth = 1; prC.stroke();
+        const perLabelX = perX + (perX > cx ? 10 : -10);
+        label(prC, 'PERI', perLabelX, perY + 4, '#e07070', '0.65rem', perX > cx ? 'left' : 'right');
+
+        // Small arc showing ϖ measured CCW from the Aries/VE reference (left = θ=π)
+        // to perihelion (left + piMod = θ = π+piMod).
+        // Canvas angles increase CW; anticlockwise=true gives visual CCW.
+        const arcR = 38;
         prC.beginPath();
-        prC.moveTo(cx + Math.cos(m.theta) * (orbitR - 9), cy - Math.sin(m.theta) * (orbitR - 9));
-        prC.lineTo(cx + Math.cos(m.theta) * (orbitR + 9), cy - Math.sin(m.theta) * (orbitR + 9));
-        prC.strokeStyle = m.color; prC.lineWidth = 2; prC.stroke();
-        const lx = cx + Math.cos(m.theta) * (orbitR + 30) + m.ax * 8;
-        const ly = cy - Math.sin(m.theta) * (orbitR + 30) + m.ay * 8;
-        label(prC, m.label1, lx, ly - 5,  m.color, '0.6rem', 'center');
-        label(prC, m.label2, lx, ly + 9,  m.color, '0.6rem', 'center');
-      }
+        prC.arc(cx, cy, arcR, Math.PI, Math.PI - piMod, piMod > 0);
+        prC.strokeStyle = 'rgba(200,160,60,0.6)'; prC.lineWidth = 1.2; prC.stroke();
+        // Tick at θ=π (left) marking the Aries/VE reference direction
+        prC.beginPath();
+        prC.moveTo(cx - arcR - 4, cy); prC.lineTo(cx - arcR + 4, cy);
+        prC.strokeStyle = '#60a060'; prC.lineWidth = 1.2; prC.stroke();
 
-      // Perihelion direction (pibar mod 2π).
-      // ϖ is the heliocentric ecliptic longitude of Earth at perihelion, measured from
-      // the Aries/VE direction.  In the diagram theta=0 (right) is WHERE EARTH IS at VE,
-      // so the Aries reference direction is at theta=π (left).  Adding π converts from
-      // the heliocentric longitude to the correct canvas position.
-      const piMod = ((pibarRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const perAngle = piMod + Math.PI;
-      const perX = cx + Math.cos(perAngle) * orbitR;
-      const perY = cy - Math.sin(perAngle) * orbitR;
-      const apoX = cx - Math.cos(perAngle) * orbitR;
-      const apoY = cy + Math.sin(perAngle) * orbitR;
-
-      // Radial guide to perihelion
-      prC.beginPath(); prC.moveTo(cx, cy); prC.lineTo(perX, perY);
-      prC.save(); prC.setLineDash([3, 5]);
-      prC.strokeStyle = 'rgba(200,80,80,0.45)'; prC.lineWidth = 1; prC.stroke();
-      prC.restore();
-
-      // Aphelion dot
-      prC.beginPath(); prC.arc(apoX, apoY, 5, 0, Math.PI * 2);
-      prC.fillStyle = '#50a0e0'; prC.fill();
-      const apoLabelX = apoX + (apoX < cx ? -8 : 8);
-      label(prC, 'APH', apoLabelX, apoY + 4, '#70b0e0', '0.65rem', apoX < cx ? 'right' : 'left');
-
-      // Sun glow
-      const sunGlow = prC.createRadialGradient(cx, cy, 0, cx, cy, 22);
-      sunGlow.addColorStop(0, 'rgba(255,220,80,0.9)');
-      sunGlow.addColorStop(0.5, 'rgba(255,180,40,0.3)');
-      sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
-      prC.beginPath(); prC.arc(cx, cy, 22, 0, Math.PI * 2);
-      prC.fillStyle = sunGlow; prC.fill();
-      prC.beginPath(); prC.arc(cx, cy, 8, 0, Math.PI * 2);
-      prC.fillStyle = '#f5c842'; prC.fill();
-      prC.strokeStyle = '#ffe080'; prC.lineWidth = 1.5; prC.stroke();
-
-      // Perihelion dot (drawn after sun so it's on top if they overlap)
-      prC.beginPath(); prC.arc(perX, perY, 6, 0, Math.PI * 2);
-      prC.fillStyle = '#e05050'; prC.fill();
-      prC.strokeStyle = '#ff8080'; prC.lineWidth = 1; prC.stroke();
-      const perLabelX = perX + (perX > cx ? 10 : -10);
-      label(prC, 'PERI', perLabelX, perY + 4, '#e07070', '0.65rem', perX > cx ? 'left' : 'right');
-
-      // Small arc showing ϖ measured CCW from the Aries/VE reference (left = θ=π)
-      // to perihelion (left + piMod = θ = π+piMod).
-      // Canvas angles increase CW; anticlockwise=true gives visual CCW.
-      const arcR = 38;
-      prC.beginPath();
-      prC.arc(cx, cy, arcR, Math.PI, Math.PI - piMod, piMod > 0);
-      prC.strokeStyle = 'rgba(200,160,60,0.6)'; prC.lineWidth = 1.2; prC.stroke();
-      // Tick at θ=π (left) marking the Aries/VE reference direction
-      prC.beginPath();
-      prC.moveTo(cx - arcR - 4, cy); prC.lineTo(cx - arcR + 4, cy);
-      prC.strokeStyle = '#60a060'; prC.lineWidth = 1.2; prC.stroke();
-
-      // Precession index bar (top right, bipolar, 0 in center)
-      const barW = 140, barH = 8;
-      const barX = OW - barW - 16, barY = 18;
-      const halfW = barW / 2;
-      prC.fillStyle = '#0d1e30'; prC.fillRect(barX, barY, barW, barH);
-      // Fill from center outward.  Negate so orange = perihelion in NH-summer half
-      // (diagram top) and blue = perihelion in NH-winter half (diagram bottom).
-      const fill = Math.max(-1, Math.min(1, -prIdx / PREC_MAX));
-      if (fill >= 0) {
-        prC.fillStyle = '#c07030';
-        prC.fillRect(barX + halfW, barY, halfW * fill, barH);
-      } else {
-        prC.fillStyle = '#3060b0';
-        prC.fillRect(barX + halfW + halfW * fill, barY, -halfW * fill, barH);
-      }
-      // Center tick
-      prC.fillStyle = '#8ab4d4'; prC.fillRect(barX + halfW - 0.5, barY, 1, barH);
-      prC.strokeStyle = '#2a4a6a'; prC.lineWidth = 1; prC.strokeRect(barX, barY, barW, barH);
-      label(prC, `e·sin(ϖ) = ${prIdx >= 0 ? '+' : ''}${prIdx.toFixed(5)}`, barX + barW / 2, barY - 6, '#9abedf', '0.78rem', 'center');
-      label(prC, '±0.07 range', barX + barW, barY + 20, '#4a6a88', '0.65rem', 'right');
-    }
-
-    // ─── Draw precession timeline ─────────────────────────────────────────────────
-
-    function drawPrecessionTimeline(prT) {
-      prTc.clearRect(0, 0, TW, TH);
-      prTc.fillStyle = '#2a4a6a'; prTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
-
-      const zeroY = TL_PAD_T + TL_H / 2;
-
-      // Positive fill (e·sin ϖ > 0 → warm)
-      prTc.beginPath();
-      prTc.moveTo(TL_PAD_L + TL_W, zeroY);
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const v = precessionData[i];
-        const y = v > 0 ? zeroY - (v / PREC_MAX) * (TL_H / 2) : zeroY;
-        prTc.lineTo(x, y);
-      }
-      prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
-      prTc.fillStyle = 'rgba(180,90,30,0.28)'; prTc.fill();
-
-      // Negative fill (e·sin ϖ < 0 → cool)
-      prTc.beginPath();
-      prTc.moveTo(TL_PAD_L + TL_W, zeroY);
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const v = precessionData[i];
-        const y = v < 0 ? zeroY - (v / PREC_MAX) * (TL_H / 2) : zeroY;
-        prTc.lineTo(x, y);
-      }
-      prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
-      prTc.fillStyle = 'rgba(30,70,180,0.28)'; prTc.fill();
-
-      // Zero line
-      prTc.save(); prTc.setLineDash([3, 5]);
-      prTc.strokeStyle = 'rgba(80,120,160,0.5)'; prTc.lineWidth = 0.8;
-      prTc.beginPath(); prTc.moveTo(TL_PAD_L, zeroY); prTc.lineTo(TL_PAD_L + TL_W, zeroY); prTc.stroke();
-      prTc.restore();
-
-      // Curve
-      prTc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const y = zeroY - (precessionData[i] / PREC_MAX) * (TL_H / 2);
-        i === 0 ? prTc.moveTo(x, y) : prTc.lineTo(x, y);
-      }
-      prTc.strokeStyle = '#5080b0'; prTc.lineWidth = 0.8; prTc.stroke();
-
-      // 405 kyr markers (eccentricity modulation of precession envelope)
-      prTc.setLineDash([2, 6]); prTc.strokeStyle = 'rgba(80,140,80,0.35)'; prTc.lineWidth = 1;
-      for (let kyr = 405; kyr <= 1000; kyr += 405) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        prTc.beginPath(); prTc.moveTo(xi, TL_PAD_T); prTc.lineTo(xi, TL_PAD_T + TL_H); prTc.stroke();
-      }
-      prTc.setLineDash([]);
-
-      // Cursor
-      const fracT = Math.abs(prT) / 1_000_000;
-      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
-      prTc.strokeStyle = '#f0e060'; prTc.lineWidth = 1.5;
-      prTc.beginPath(); prTc.moveTo(cursorX, TL_PAD_T - 2); prTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); prTc.stroke();
-      const prVal = earthPrecessionIndex(prT);
-      const dotY = zeroY - (prVal / PREC_MAX) * (TL_H / 2);
-      prTc.beginPath();
-      prTc.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
-      prTc.fillStyle = '#f0e060'; prTc.fill();
-
-      // Axes
-      prTc.strokeStyle = '#7aaacf'; prTc.lineWidth = 1;
-      prTc.beginPath(); prTc.moveTo(TL_PAD_L, TL_PAD_T); prTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); prTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); prTc.stroke();
-
-      // X labels
-      prTc.fillStyle = '#90b8d8'; prTc.font = "0.65rem 'Courier New', monospace"; prTc.textAlign = 'center';
-      for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        prTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
-      }
-      prTc.fillStyle = '#7aaacf'; prTc.textAlign = 'center';
-      prTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
-
-      // Y label
-      prTc.save(); prTc.translate(12, TL_PAD_T + TL_H / 2); prTc.rotate(-Math.PI / 2);
-      prTc.fillStyle = '#8ab4d4'; prTc.font = "0.6rem 'Courier New', monospace"; prTc.textAlign = 'center';
-      prTc.fillText('e·sinϖ', 0, 0); prTc.restore();
-
-      // Y ticks
-      prTc.textAlign = 'right';
-      for (const v of [-0.06, -0.03, 0, 0.03, 0.06]) {
-        const yi = zeroY - (v / PREC_MAX) * (TL_H / 2);
-        if (yi < TL_PAD_T || yi > TL_PAD_T + TL_H) continue;
-        prTc.fillStyle = '#8ab4d4'; prTc.font = "0.58rem 'Courier New', monospace";
-        prTc.fillText(v === 0 ? '0' : (v > 0 ? '+' : '') + v.toFixed(2), TL_PAD_L - 4, yi + 4);
-        prTc.beginPath(); prTc.strokeStyle = 'rgba(60,100,140,0.25)'; prTc.lineWidth = 0.5;
-        prTc.moveTo(TL_PAD_L, yi); prTc.lineTo(TL_PAD_L + TL_W, yi); prTc.stroke();
-      }
-    }
-
-    // ─── Precession stats ─────────────────────────────────────────────────────────
-
-    function updatePrStats(t, prIdx, pibarRad) {
-      const kyrBP = Math.abs(t / 1000);
-      document.getElementById('prStatTime').textContent =
-        kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
-      document.getElementById('prStatIdx').textContent = `${prIdx >= 0 ? '+' : ''}${prIdx.toFixed(5)}`;
-      const piDeg = ((pibarRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) * 180 / Math.PI;
-      document.getElementById('prStatPibar').textContent = `${piDeg.toFixed(2)}°`;
-    }
-
-    // ─── Draw eccentricity timeline ───────────────────────────────────────────────
-
-    function drawTimeline(currentT) {
-      tc.clearRect(0, 0, TW, TH);
-      tc.fillStyle = '#2a4a6a'; tc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
-
-      tc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
-        i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
-      }
-      tc.strokeStyle = '#3a80c0'; tc.lineWidth = 1.2; tc.stroke();
-
-      tc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
-        i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
-      }
-      tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
-      tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
-      tc.closePath(); tc.fillStyle = 'rgba(30,80,150,0.22)'; tc.fill();
-
-      tc.setLineDash([2, 6]); tc.strokeStyle = 'rgba(80,140,80,0.35)'; tc.lineWidth = 1;
-      for (let kyr = 405; kyr <= 1000; kyr += 405) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        tc.beginPath(); tc.moveTo(xi, TL_PAD_T); tc.lineTo(xi, TL_PAD_T + TL_H); tc.stroke();
-      }
-      tc.setLineDash([]);
-
-      const fracT = Math.abs(currentT) / 1_000_000;
-      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
-      tc.strokeStyle = '#f0e060'; tc.lineWidth = 1.5;
-      tc.beginPath(); tc.moveTo(cursorX, TL_PAD_T - 2); tc.lineTo(cursorX, TL_PAD_T + TL_H + 2); tc.stroke();
-      const e = earthEccentricity(currentT);
-      const dotY = TL_PAD_T + TL_H - (e / eccMax) * TL_H;
-      tc.beginPath(); tc.arc(cursorX, dotY, 3.5, 0, Math.PI * 2); tc.fillStyle = '#f0e060'; tc.fill();
-
-      tc.strokeStyle = '#7aaacf'; tc.lineWidth = 1;
-      tc.beginPath(); tc.moveTo(TL_PAD_L, TL_PAD_T); tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); tc.stroke();
-
-      tc.fillStyle = '#90b8d8'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
-      for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        tc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
-      }
-      tc.fillStyle = '#7aaacf'; tc.textAlign = 'center';
-      tc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
-
-      tc.save(); tc.translate(12, TL_PAD_T + TL_H / 2); tc.rotate(-Math.PI / 2);
-      tc.fillStyle = '#8ab4d4'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
-      tc.fillText('e', 0, 0); tc.restore();
-
-      tc.textAlign = 'right';
-      for (const ev of [0, 0.02, 0.04, 0.06]) {
-        const yi = TL_PAD_T + TL_H - (ev / eccMax) * TL_H;
-        tc.fillStyle = '#8ab4d4'; tc.font = "0.62rem 'Courier New', monospace";
-        tc.fillText(ev.toFixed(2), TL_PAD_L - 4, yi + 4);
-        tc.beginPath(); tc.strokeStyle = 'rgba(60,100,140,0.3)'; tc.lineWidth = 0.5;
-        tc.moveTo(TL_PAD_L, yi); tc.lineTo(TL_PAD_L + TL_W, yi); tc.stroke();
-      }
-    }
-
-    // ─── Draw obliquity timeline ──────────────────────────────────────────────────
-
-    function drawObliquityTimeline(oblT) {
-      oblTc.clearRect(0, 0, TW, TH);
-      oblTc.fillStyle = '#2a4a6a'; oblTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
-
-      oblTc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
-        i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
-      }
-      oblTc.strokeStyle = '#3a80c0'; oblTc.lineWidth = 1.2; oblTc.stroke();
-
-      oblTc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
-        i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
-      }
-      oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
-      oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
-      oblTc.closePath(); oblTc.fillStyle = 'rgba(30,80,150,0.22)'; oblTc.fill();
-
-      // 410 kyr markers (10 × 41 kyr obliquity cycle)
-      oblTc.setLineDash([2, 6]); oblTc.strokeStyle = 'rgba(160,110,50,0.35)'; oblTc.lineWidth = 1;
-      for (let kyr = 410; kyr <= 1000; kyr += 410) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        oblTc.beginPath(); oblTc.moveTo(xi, TL_PAD_T); oblTc.lineTo(xi, TL_PAD_T + TL_H); oblTc.stroke();
-      }
-      oblTc.setLineDash([]);
-
-      const fracT = Math.abs(oblT) / 1_000_000;
-      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
-      oblTc.strokeStyle = '#f0e060'; oblTc.lineWidth = 1.5;
-      oblTc.beginPath(); oblTc.moveTo(cursorX, TL_PAD_T - 2); oblTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); oblTc.stroke();
-      const oblDeg = earthObliquity(oblT) * 180 / Math.PI;
-      const dotY = TL_PAD_T + TL_H - ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
-      oblTc.beginPath();
-      oblTc.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
-      oblTc.fillStyle = '#f0e060'; oblTc.fill();
-
-      oblTc.strokeStyle = '#7aaacf'; oblTc.lineWidth = 1;
-      oblTc.beginPath(); oblTc.moveTo(TL_PAD_L, TL_PAD_T); oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); oblTc.stroke();
-
-      oblTc.fillStyle = '#90b8d8'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
-      for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        oblTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
-      }
-      oblTc.fillStyle = '#7aaacf'; oblTc.textAlign = 'center';
-      oblTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
-
-      oblTc.save(); oblTc.translate(12, TL_PAD_T + TL_H / 2); oblTc.rotate(-Math.PI / 2);
-      oblTc.fillStyle = '#8ab4d4'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
-      oblTc.fillText('ε', 0, 0); oblTc.restore();
-
-      oblTc.textAlign = 'right';
-      for (const dv of [21, 22, 23, 24]) {
-        const yi = TL_PAD_T + TL_H - ((dv - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
-        if (yi < TL_PAD_T || yi > TL_PAD_T + TL_H) continue;
-        oblTc.fillStyle = '#8ab4d4'; oblTc.font = "0.62rem 'Courier New', monospace";
-        oblTc.fillText(`${dv}°`, TL_PAD_L - 4, yi + 4);
-        oblTc.beginPath(); oblTc.strokeStyle = 'rgba(60,100,140,0.3)'; oblTc.lineWidth = 0.5;
-        oblTc.moveTo(TL_PAD_L, yi); oblTc.lineTo(TL_PAD_L + TL_W, yi); oblTc.stroke();
-      }
-    }
-
-    // ─── Stats ────────────────────────────────────────────────────────────────────
-
-    function updateStats(t, e) {
-      const kyrBP = Math.abs(t / 1000);
-      document.getElementById('statTime').textContent =
-        kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
-      document.getElementById('statEcc').textContent = e.toFixed(6);
-      document.getElementById('statPeri').textContent = `${(1 - e).toFixed(4)} AU`;
-      document.getElementById('statApo').textContent = `${(1 + e).toFixed(4)} AU`;
-    }
-
-    function updateOblStats(t, oblDeg) {
-      const kyrBP = Math.abs(t / 1000);
-      document.getElementById('oblStatTime').textContent =
-        kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
-      document.getElementById('oblStatDeg').textContent = `${oblDeg.toFixed(4)}°`;
-      const oblDeg2 = earthObliquity(t - 5000) * 180 / Math.PI;
-      const rate = (oblDeg - oblDeg2) / 5;
-      document.getElementById('oblStatRate').textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}°/kyr`;
-    }
-
-    // ─── Draw axial precession diagram ───────────────────────────────────────────
-
-    function drawAxialDiagram(psiRad, epsRad) {
-      axC.clearRect(0, 0, OW, OH);
-
-      const cx = OW / 2;
-      const cy = OH / 2 + 30;
-      const ER = 62;          // Earth radius px
-      const AN = ER * 2.2;    // north axis extension px
-      const AS = ER * 1.1;    // south axis extension px
-      const ELEV = 22 * Math.PI / 180;
-      const cosV = Math.cos(ELEV), sinV = Math.sin(ELEV);
-      const cosEps = Math.cos(epsRad), sinEps = Math.sin(epsRad);
-      const cosPsi = Math.cos(psiRad), sinPsi = Math.sin(psiRad);
-
-      // Orthographic projection: ecliptic (x right, y depth, z up) → canvas
-      function proj(wx, wy, wz) {
-        return { x: cx + wx, y: cy - (wz * cosV + wy * sinV) };
-      }
-
-      // Draw arc of cone circle (frontHalf: wy<=0, backHalf: wy>0)
-      function coneArc(frontHalf, backHalf, style, lw, dash) {
-        const N = 120;
-        axC.save();
-        if (dash) axC.setLineDash(dash);
-        axC.strokeStyle = style; axC.lineWidth = lw;
-        axC.beginPath();
-        let pen = false;
-        for (let i = 0; i <= N; i++) {
-          const t = (i / N) * 2 * Math.PI;
-          const wy = sinEps * Math.sin(t) * AN;
-          const back = wy > 0;
-          if ((frontHalf && !back) || (backHalf && back)) {
-            const p = proj(sinEps * Math.cos(t) * AN, wy, cosEps * AN);
-            if (!pen) { axC.moveTo(p.x, p.y); pen = true; } else axC.lineTo(p.x, p.y);
-          } else pen = false;
+        // Precession index bar (top right, bipolar, 0 in center)
+        const barW = 140, barH = 8;
+        const barX = OW - barW - 16, barY = 18;
+        const halfW = barW / 2;
+        prC.fillStyle = '#0d1e30'; prC.fillRect(barX, barY, barW, barH);
+        // Fill from center outward.  Negate so orange = perihelion in NH-summer half
+        // (diagram top) and blue = perihelion in NH-winter half (diagram bottom).
+        const fill = Math.max(-1, Math.min(1, -prIdx / PREC_MAX));
+        if (fill >= 0) {
+          prC.fillStyle = '#c07030';
+          prC.fillRect(barX + halfW, barY, halfW * fill, barH);
+        } else {
+          prC.fillStyle = '#3060b0';
+          prC.fillRect(barX + halfW + halfW * fill, barY, -halfW * fill, barH);
         }
-        axC.stroke();
-        axC.restore();
+        // Center tick
+        prC.fillStyle = '#8ab4d4'; prC.fillRect(barX + halfW - 0.5, barY, 1, barH);
+        prC.strokeStyle = '#2a4a6a'; prC.lineWidth = 1; prC.strokeRect(barX, barY, barW, barH);
+        label(prC, `e·sin(ϖ) = ${prIdx >= 0 ? '+' : ''}${prIdx.toFixed(5)}`, barX + barW / 2, barY - 6, '#9abedf', '0.78rem', 'center');
+        label(prC, '±0.07 range', barX + barW, barY + 20, '#4a6a88', '0.65rem', 'right');
       }
 
-      // Draw arc of equatorial ring (same front/back split)
-      function eqArc(frontHalf, backHalf, style, lw, dash) {
-        const N = 72;
-        axC.save();
-        if (dash) axC.setLineDash(dash);
-        axC.strokeStyle = style; axC.lineWidth = lw;
-        axC.beginPath();
-        let pen = false;
-        for (let i = 0; i <= N; i++) {
-          const t = (i / N) * 2 * Math.PI;
-          const wx = ER * ( Math.cos(t) * sinPsi + Math.sin(t) * cosEps * cosPsi);
-          const wy = ER * (-Math.cos(t) * cosPsi + Math.sin(t) * cosEps * sinPsi);
-          const wz = ER * (-Math.sin(t) * sinEps);
-          const back = wy > 0;
-          if ((frontHalf && !back) || (backHalf && back)) {
-            const p = proj(wx, wy, wz);
-            if (!pen) { axC.moveTo(p.x, p.y); pen = true; } else axC.lineTo(p.x, p.y);
-          } else pen = false;
+      // ─── Draw precession timeline ─────────────────────────────────────────────────
+
+      function drawPrecessionTimeline(prT) {
+        prTc.clearRect(0, 0, TW, TH);
+        prTc.fillStyle = '#2a4a6a'; prTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+        const zeroY = TL_PAD_T + TL_H / 2;
+
+        // Positive fill (e·sin ϖ > 0 → warm)
+        prTc.beginPath();
+        prTc.moveTo(TL_PAD_L + TL_W, zeroY);
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const v = precessionData[i];
+          const y = v > 0 ? zeroY - (v / PREC_MAX) * (TL_H / 2) : zeroY;
+          prTc.lineTo(x, y);
         }
-        axC.stroke();
-        axC.restore();
-      }
+        prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
+        prTc.fillStyle = 'rgba(30,70,180,0.28)'; prTc.fill();
 
-      // 1. Stars
-      drawStars(axC);
-
-      // 2. Ecliptic plane reference ellipse
-      const planeR = ER * 2.85, planeRy = planeR * sinV;
-      axC.save();
-      axC.setLineDash([3, 7]);
-      axC.beginPath();
-      axC.ellipse(cx, cy, planeR, planeRy, 0, 0, 2 * Math.PI);
-      axC.strokeStyle = 'rgba(28,65,115,0.92)'; axC.lineWidth = 1; axC.stroke();
-      axC.setLineDash([]);
-      axC.restore();
-      label(axC, 'ECLIPTIC PLANE', cx + planeR + 4, cy + 4, 'rgba(35,82,142,0.95)', '0.6rem', 'left');
-
-      // 3. Ecliptic pole dashed line
-      const eclTop = proj(0, 0, AN * 1.08), eclBot = proj(0, 0, -AS * 0.5);
-      axC.save();
-      axC.setLineDash([4, 9]);
-      axC.beginPath();
-      axC.moveTo(eclBot.x, eclBot.y); axC.lineTo(eclTop.x, eclTop.y);
-      axC.strokeStyle = 'rgba(42,92,162,0.88)'; axC.lineWidth = 1; axC.stroke();
-      axC.setLineDash([]);
-      axC.restore();
-      label(axC, 'ECLIPTIC POLE', eclTop.x, eclTop.y - 29, 'rgba(42,92,162,0.92)', '0.6rem', 'center');
-
-      // 4. Cone generators (drawn before Earth fill so Earth covers their inner ends)
-      for (let i = 0; i < 18; i++) {
-        const t = (i / 18) * 2 * Math.PI;
-        const wy = sinEps * Math.sin(t) * AN;
-        const tip = proj(sinEps * Math.cos(t) * AN, wy, cosEps * AN);
-        axC.beginPath(); axC.moveTo(cx, cy); axC.lineTo(tip.x, tip.y);
-        axC.strokeStyle = wy < 0 ? 'rgba(52,108,182,0.1)' : 'rgba(32,72,138,0.06)';
-        axC.lineWidth = 0.7; axC.stroke();
-      }
-
-      // 5. Cone circle (back dashed, front solid)
-      coneArc(false, true, 'rgba(52,118,198,0.25)', 1, [2, 5]);
-      coneArc(true, false, 'rgba(52,118,198,0.52)', 1.2, null);
-
-      // 6. Recent ~8000-yr trail on cone circle
-      const TRAIL_ARC = (8000 / 25694) * 2 * Math.PI;
-      axC.beginPath();
-      for (let i = 0; i <= 80; i++) {
-        const t = psiRad - TRAIL_ARC + (i / 80) * TRAIL_ARC;
-        const p = proj(sinEps * Math.cos(t) * AN, sinEps * Math.sin(t) * AN, cosEps * AN);
-        if (i === 0) axC.moveTo(p.x, p.y); else axC.lineTo(p.x, p.y);
-      }
-      axC.strokeStyle = 'rgba(245,200,66,0.4)'; axC.lineWidth = 2.2; axC.stroke();
-
-      // 7. Earth globe
-      const glowX = cx - ER * 0.43, glowY = cy - ER * 0.43;
-      const eg = axC.createRadialGradient(glowX, glowY, 0, cx, cy, ER);
-      eg.addColorStop(0,    '#5bbde8');
-      eg.addColorStop(0.22, '#2f88cc');
-      eg.addColorStop(0.52, '#1a568e');
-      eg.addColorStop(0.80, '#0e2f56');
-      eg.addColorStop(1,    '#040f22');
-      axC.beginPath(); axC.arc(cx, cy, ER, 0, 2 * Math.PI);
-      axC.fillStyle = eg; axC.fill();
-
-      const ag = axC.createRadialGradient(cx, cy, ER * 0.88, cx, cy, ER * 1.2);
-      ag.addColorStop(0,   'rgba(72,152,242,0.20)');
-      ag.addColorStop(0.7, 'rgba(48,118,212,0.07)');
-      ag.addColorStop(1,   'rgba(28,80,182,0)');
-      axC.beginPath(); axC.arc(cx, cy, ER * 1.2, 0, 2 * Math.PI);
-      axC.fillStyle = ag; axC.fill();
-
-      axC.beginPath(); axC.arc(cx, cy, ER, 0, 2 * Math.PI);
-      axC.strokeStyle = 'rgba(58,118,210,0.38)'; axC.lineWidth = 1; axC.stroke();
-
-      // 8. Earth equatorial ring
-      eqArc(false, true, 'rgba(88,158,225,0.28)', 1,   [2, 4]);
-      eqArc(true, false, 'rgba(88,158,225,0.65)', 1.3, null);
-
-      // 9. Rotation axis line
-      const np = proj(sinEps * cosPsi * AN, sinEps * sinPsi * AN, cosEps * AN);
-      const sp = proj(-sinEps * cosPsi * AS, -sinEps * sinPsi * AS, -cosEps * AS);
-      axC.beginPath(); axC.moveTo(sp.x, sp.y); axC.lineTo(np.x, np.y);
-      axC.strokeStyle = 'rgba(245,200,66,0.92)'; axC.lineWidth = 2; axC.stroke();
-
-      // 10. Pole stars on cone circle
-      const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      let nearestStar = null, nearestDist = Infinity;
-      for (const star of POLE_STARS) {
-        const sa = ((star.psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        let d = Math.abs(psiMod - sa); if (d > Math.PI) d = 2 * Math.PI - d;
-        if (d < nearestDist) { nearestDist = d; nearestStar = star; }
-      }
-      for (const star of POLE_STARS) {
-        const sp2 = proj(sinEps * Math.cos(star.psi) * AN, sinEps * Math.sin(star.psi) * AN, cosEps * AN);
-        const isNearest = star === nearestStar && nearestDist < Math.PI / 9;
-        axC.beginPath(); axC.arc(sp2.x, sp2.y, isNearest ? 5 : 3.5, 0, 2 * Math.PI);
-        axC.fillStyle = star.color; axC.fill();
-        if (isNearest) { axC.strokeStyle = '#fff'; axC.lineWidth = 1.2; axC.stroke(); }
-        label(axC, star.name, sp2.x, sp2.y - (isNearest ? 11 : 8), isNearest ? '#f0f8ff' : star.color, '0.65rem', 'center');
-      }
-
-      // 11. North pole X marker
-      const XR = 7;
-      axC.save();
-      axC.strokeStyle = '#f5c842'; axC.lineWidth = 2.2; axC.lineCap = 'round';
-      axC.beginPath(); axC.moveTo(np.x - XR, np.y - XR); axC.lineTo(np.x + XR, np.y + XR); axC.stroke();
-      axC.beginPath(); axC.moveTo(np.x + XR, np.y - XR); axC.lineTo(np.x - XR, np.y + XR); axC.stroke();
-      axC.restore();
-
-      // South pole dot
-      axC.beginPath(); axC.arc(sp.x, sp.y, 2.5, 0, 2 * Math.PI);
-      axC.fillStyle = 'rgba(155,185,215,0.5)'; axC.fill();
-
-      // 12. Labels
-      label(axC, 'N POLE', np.x + (np.x > cx ? 12 : -12), np.y, '#f5c842', '0.68rem', np.x > cx ? 'left' : 'right');
-      label(axC, 'S POLE', sp.x + (sp.x > cx ? 10 : -10), sp.y, 'rgba(155,185,215,0.55)', '0.6rem', sp.x > cx ? 'left' : 'right');
-
-      const psiDeg = psiMod * 180 / Math.PI;
-      label(axC, `ψ = ${psiDeg.toFixed(1)}°`, OW - 14, 26, '#9abedf', '0.78rem', 'right');
-      label(axC, `ε = ${(epsRad * 180 / Math.PI).toFixed(2)}°`, OW - 14, 42, '#7090a8', '0.72rem', 'right');
-      label(axC, 'T ≈ 25,694 yr / cycle', OW - 14, 58, '#4a6a88', '0.65rem', 'right');
-    }
-
-    // ─── Draw axial precession timeline ──────────────────────────────────────────
-
-    function drawAxialTimeline(axT) {
-      axTc.clearRect(0, 0, TW, TH);
-      axTc.fillStyle = '#2a4a6a'; axTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
-
-      // Continuous wave: minimum angular distance from ψ=0 (Polaris), 0°–180°
-      axTc.strokeStyle = '#6090c0'; axTc.lineWidth = 0.9;
-      axTc.beginPath();
-      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-        const psiMod = (((axialData[i] % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
-        const dist = Math.min(psiMod, 2 * Math.PI - psiMod);  // 0..π
-        const y = TL_PAD_T + TL_H - (dist / Math.PI) * TL_H;
-        if (i === 0) axTc.moveTo(x, y); else axTc.lineTo(x, y);
-      }
-      axTc.stroke();
-
-      // 90° reference dashed line
-      const midY = TL_PAD_T + TL_H / 2;
-      axTc.save(); axTc.setLineDash([3, 5]);
-      axTc.strokeStyle = 'rgba(80,120,160,0.4)'; axTc.lineWidth = 0.8;
-      axTc.beginPath(); axTc.moveTo(TL_PAD_L, midY); axTc.lineTo(TL_PAD_L + TL_W, midY); axTc.stroke();
-      axTc.restore();
-
-      // Cursor
-      const fracT = Math.abs(axT) / 1_000_000;
-      const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
-      axTc.strokeStyle = '#f0e060'; axTc.lineWidth = 1.5;
-      axTc.beginPath(); axTc.moveTo(cursorX, TL_PAD_T - 2); axTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); axTc.stroke();
-      const rawCur = earthAxialPrecession(axT);
-      const curMod = (((rawCur % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
-      const curDist = Math.min(curMod, 2 * Math.PI - curMod);
-      const dotY = TL_PAD_T + TL_H - (curDist / Math.PI) * TL_H;
-      axTc.beginPath(); axTc.arc(cursorX, dotY, 3.5, 0, Math.PI * 2);
-      axTc.fillStyle = '#f0e060'; axTc.fill();
-
-      // Axes
-      axTc.strokeStyle = '#7aaacf'; axTc.lineWidth = 1;
-      axTc.beginPath(); axTc.moveTo(TL_PAD_L, TL_PAD_T); axTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); axTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); axTc.stroke();
-
-      // X labels
-      axTc.fillStyle = '#90b8d8'; axTc.font = "0.65rem 'Courier New', monospace"; axTc.textAlign = 'center';
-      for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-        const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
-        axTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
-      }
-      axTc.fillStyle = '#7aaacf'; axTc.textAlign = 'center';
-      axTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
-
-      // Y label
-      axTc.save(); axTc.translate(12, TL_PAD_T + TL_H / 2); axTc.rotate(-Math.PI / 2);
-      axTc.fillStyle = '#8ab4d4'; axTc.font = "0.6rem 'Courier New', monospace"; axTc.textAlign = 'center';
-      axTc.fillText('∠ from Polaris', 0, 0); axTc.restore();
-
-      // Y ticks: 0° (bottom, nearest Polaris) to 180° (top, farthest)
-      axTc.textAlign = 'right';
-      for (const [deg, label_] of [[0, '0°'], [45, '45°'], [90, '90°'], [135, '135°'], [180, '180°']]) {
-        const yi = TL_PAD_T + TL_H - (deg / 180) * TL_H;
-        axTc.fillStyle = '#8ab4d4'; axTc.font = "0.58rem 'Courier New', monospace";
-        axTc.fillText(label_, TL_PAD_L - 4, yi + 4);
-        axTc.beginPath(); axTc.strokeStyle = 'rgba(60,100,140,0.25)'; axTc.lineWidth = 0.5;
-        axTc.moveTo(TL_PAD_L, yi); axTc.lineTo(TL_PAD_L + TL_W, yi); axTc.stroke();
-      }
-    }
-
-    // ─── Axial precession stats ───────────────────────────────────────────────────
-
-    function updateAxStats(t, psiRad) {
-      const kyrBP = Math.abs(t / 1000);
-      document.getElementById('axStatTime').textContent =
-        kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
-
-      const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      document.getElementById('axStatPsi').textContent = `${(psiMod * 180 / Math.PI).toFixed(1)}°`;
-
-      let nearestStar = null, nearestDist = Infinity;
-      for (const star of POLE_STARS) {
-        const sAngle = ((star.psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        let d = Math.abs(psiMod - sAngle);
-        if (d > Math.PI) d = 2 * Math.PI - d;
-        if (d < nearestDist) { nearestDist = d; nearestStar = star; }
-      }
-      document.getElementById('axStatStar').textContent =
-        nearestDist < Math.PI / 9 ? nearestStar.name : '—';
-    }
-
-    // ─── Unified animation loop ───────────────────────────────────────────────────
-
-    function frame(timestamp) {
-      if (activePage === 'orbit') {
-        if (lastTimestamp !== null && playing) {
-          const dt = (timestamp - lastTimestamp) / 1000;
-          currentT += getSpeed() * 1000 * dt;
-          if (currentT > T_MIN) currentT = T_MAX;
+        // Negative fill (e·sin ϖ < 0 → cool)
+        prTc.beginPath();
+        prTc.moveTo(TL_PAD_L + TL_W, zeroY);
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const v = precessionData[i];
+          const y = v < 0 ? zeroY - (v / PREC_MAX) * (TL_H / 2) : zeroY;
+          prTc.lineTo(x, y);
         }
-        lastTimestamp = timestamp;
+        prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
+        prTc.fillStyle = 'rgba(180,90,30,0.28)'; prTc.fill();
+
+        // Zero line
+        prTc.save(); prTc.setLineDash([3, 5]);
+        prTc.strokeStyle = 'rgba(80,120,160,0.5)'; prTc.lineWidth = 0.8;
+        prTc.beginPath(); prTc.moveTo(TL_PAD_L, zeroY); prTc.lineTo(TL_PAD_L + TL_W, zeroY); prTc.stroke();
+        prTc.restore();
+
+        // Curve
+        prTc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = zeroY - (precessionData[i] / PREC_MAX) * (TL_H / 2);
+          i === 0 ? prTc.moveTo(x, y) : prTc.lineTo(x, y);
+        }
+        prTc.strokeStyle = '#5080b0'; prTc.lineWidth = 0.8; prTc.stroke();
+
+        // 405 kyr markers (eccentricity modulation of precession envelope)
+        prTc.setLineDash([2, 6]); prTc.strokeStyle = 'rgba(80,140,80,0.35)'; prTc.lineWidth = 1;
+        for (let kyr = 405; kyr <= 1000; kyr += 405) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          prTc.beginPath(); prTc.moveTo(xi, TL_PAD_T); prTc.lineTo(xi, TL_PAD_T + TL_H); prTc.stroke();
+        }
+        prTc.setLineDash([]);
+
+        // Cursor
+        const fracT = Math.abs(prT) / 1_000_000;
+        const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+        prTc.strokeStyle = '#f0e060'; prTc.lineWidth = 1.5;
+        prTc.beginPath(); prTc.moveTo(cursorX, TL_PAD_T - 2); prTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); prTc.stroke();
+        const prVal = earthPrecessionIndex(prT);
+        const dotY = zeroY - (prVal / PREC_MAX) * (TL_H / 2);
+        prTc.beginPath();
+        prTc.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
+        prTc.fillStyle = '#f0e060'; prTc.fill();
+
+        // Axes
+        prTc.strokeStyle = '#7aaacf'; prTc.lineWidth = 1;
+        prTc.beginPath(); prTc.moveTo(TL_PAD_L, TL_PAD_T); prTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); prTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); prTc.stroke();
+
+        // X labels
+        prTc.fillStyle = '#90b8d8'; prTc.font = "0.65rem 'Courier New', monospace"; prTc.textAlign = 'center';
+        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          prTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
+        }
+        prTc.fillStyle = '#7aaacf'; prTc.textAlign = 'center';
+        prTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+        // Y label
+        prTc.save(); prTc.translate(12, TL_PAD_T + TL_H / 2); prTc.rotate(-Math.PI / 2);
+        prTc.fillStyle = '#8ab4d4'; prTc.font = "0.6rem 'Courier New', monospace"; prTc.textAlign = 'center';
+        prTc.fillText('e·sinϖ', 0, 0); prTc.restore();
+
+        // Y ticks
+        prTc.textAlign = 'right';
+        for (const v of [-0.06, -0.03, 0, 0.03, 0.06]) {
+          const yi = zeroY - (v / PREC_MAX) * (TL_H / 2);
+          if (yi < TL_PAD_T || yi > TL_PAD_T + TL_H) continue;
+          prTc.fillStyle = '#8ab4d4'; prTc.font = "0.58rem 'Courier New', monospace";
+          prTc.fillText(v === 0 ? '0' : (v > 0 ? '+' : '') + v.toFixed(2), TL_PAD_L - 4, yi + 4);
+          prTc.beginPath(); prTc.strokeStyle = 'rgba(60,100,140,0.25)'; prTc.lineWidth = 0.5;
+          prTc.moveTo(TL_PAD_L, yi); prTc.lineTo(TL_PAD_L + TL_W, yi); prTc.stroke();
+        }
+      }
+
+      // ─── Precession stats ─────────────────────────────────────────────────────────
+
+      function updatePrStats(t, prIdx, pibarRad) {
+        const kyrBP = Math.abs(t / 1000);
+        document.getElementById('prStatTime').textContent =
+          kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
+        document.getElementById('prStatIdx').textContent = `${prIdx >= 0 ? '+' : ''}${prIdx.toFixed(5)}`;
+        const piDeg = ((pibarRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) * 180 / Math.PI;
+        document.getElementById('prStatPibar').textContent = `${piDeg.toFixed(2)}°`;
+      }
+
+      // ─── Draw eccentricity timeline ───────────────────────────────────────────────
+
+      function drawTimeline(currentT) {
+        tc.clearRect(0, 0, TW, TH);
+        tc.fillStyle = '#2a4a6a'; tc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+        tc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
+          i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
+        }
+        tc.strokeStyle = '#3a80c0'; tc.lineWidth = 1.2; tc.stroke();
+
+        tc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - (timelineData[i] / eccMax) * TL_H;
+          i === 0 ? tc.moveTo(x, y) : tc.lineTo(x, y);
+        }
+        tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
+        tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
+        tc.closePath(); tc.fillStyle = 'rgba(30,80,150,0.22)'; tc.fill();
+
+        tc.setLineDash([2, 6]); tc.strokeStyle = 'rgba(80,140,80,0.35)'; tc.lineWidth = 1;
+        for (let kyr = 405; kyr <= 1000; kyr += 405) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          tc.beginPath(); tc.moveTo(xi, TL_PAD_T); tc.lineTo(xi, TL_PAD_T + TL_H); tc.stroke();
+        }
+        tc.setLineDash([]);
+
+        const fracT = Math.abs(currentT) / 1_000_000;
+        const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+        tc.strokeStyle = '#f0e060'; tc.lineWidth = 1.5;
+        tc.beginPath(); tc.moveTo(cursorX, TL_PAD_T - 2); tc.lineTo(cursorX, TL_PAD_T + TL_H + 2); tc.stroke();
         const e = earthEccentricity(currentT);
-        drawOrbit(e);
-        drawTimeline(currentT);
-        updateStats(currentT, e);
-        if (soundOn && oscillator) oscillator.frequency.setTargetAtTime(eccToHz(e), audioCtx.currentTime, 0.05);
-      } else if (activePage === 'obliquity') {
-        if (oblLastTimestamp !== null && oblPlaying) {
-          const dt = (timestamp - oblLastTimestamp) / 1000;
-          oblCurrentT += getOblSpeed() * 1000 * dt;
-          if (oblCurrentT > 0) oblCurrentT = OBL_T_MAX;
+        const dotY = TL_PAD_T + TL_H - (e / eccMax) * TL_H;
+        tc.beginPath(); tc.arc(cursorX, dotY, 3.5, 0, Math.PI * 2); tc.fillStyle = '#f0e060'; tc.fill();
+
+        tc.strokeStyle = '#7aaacf'; tc.lineWidth = 1;
+        tc.beginPath(); tc.moveTo(TL_PAD_L, TL_PAD_T); tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); tc.stroke();
+
+        tc.fillStyle = '#90b8d8'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
+        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          tc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
         }
-        oblLastTimestamp = timestamp;
-        const oblDeg = earthObliquity(oblCurrentT) * 180 / Math.PI;
-        drawObliquityDiagram(oblDeg);
-        drawObliquityTimeline(oblCurrentT);
-        updateOblStats(oblCurrentT, oblDeg);
-        if (oblSoundOn && oblOscillator) oblOscillator.frequency.setTargetAtTime(oblToHz(oblDeg), oblAudioCtx.currentTime, 0.05);
-      } else if (activePage === 'precession') {
-        if (prLastTimestamp !== null && prPlaying) {
-          const dt = (timestamp - prLastTimestamp) / 1000;
-          prCurrentT += getPrSpeed() * 1000 * dt;
-          if (prCurrentT > 0) prCurrentT = PR_T_MAX;
+        tc.fillStyle = '#7aaacf'; tc.textAlign = 'center';
+        tc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+        tc.save(); tc.translate(12, TL_PAD_T + TL_H / 2); tc.rotate(-Math.PI / 2);
+        tc.fillStyle = '#8ab4d4'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
+        tc.fillText('e', 0, 0); tc.restore();
+
+        tc.textAlign = 'right';
+        for (const ev of [0, 0.02, 0.04, 0.06]) {
+          const yi = TL_PAD_T + TL_H - (ev / eccMax) * TL_H;
+          tc.fillStyle = '#8ab4d4'; tc.font = "0.62rem 'Courier New', monospace";
+          tc.fillText(ev.toFixed(2), TL_PAD_L - 4, yi + 4);
+          tc.beginPath(); tc.strokeStyle = 'rgba(60,100,140,0.3)'; tc.lineWidth = 0.5;
+          tc.moveTo(TL_PAD_L, yi); tc.lineTo(TL_PAD_L + TL_W, yi); tc.stroke();
         }
-        prLastTimestamp = timestamp;
-        const pibarRad = earthLongitudePerihelion(prCurrentT);
-        const prIdx = earthPrecessionIndex(prCurrentT);
-        drawPrecessionDiagram(pibarRad, prIdx);
-        drawPrecessionTimeline(prCurrentT);
-        updatePrStats(prCurrentT, prIdx, pibarRad);
-        if (prSoundOn && prOscillator) prOscillator.frequency.setTargetAtTime(prToHz(prIdx), prAudioCtx.currentTime, 0.05);
-      } else if (activePage === 'axial') {
-        if (axLastTimestamp !== null && axPlaying) {
-          const dt = (timestamp - axLastTimestamp) / 1000;
-          axCurrentT += getAxSpeed() * 1000 * dt;
-          if (axCurrentT > 0) axCurrentT = AX_T_MAX;
-        }
-        axLastTimestamp = timestamp;
-        const psiRad = earthAxialPrecession(axCurrentT);
-        const epsRad = earthObliquity(axCurrentT);
-        drawAxialDiagram(psiRad, epsRad);
-        drawAxialTimeline(axCurrentT);
-        updateAxStats(axCurrentT, psiRad);
-        if (axSoundOn && axOscillator) axOscillator.frequency.setTargetAtTime(axToHz(psiRad), axAudioCtx.currentTime, 0.05);
       }
+
+      // ─── Draw obliquity timeline ──────────────────────────────────────────────────
+
+      function drawObliquityTimeline(oblT) {
+        oblTc.clearRect(0, 0, TW, TH);
+        oblTc.fillStyle = '#2a4a6a'; oblTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+        oblTc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+          i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
+        }
+        oblTc.strokeStyle = '#3a80c0'; oblTc.lineWidth = 1.2; oblTc.stroke();
+
+        oblTc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+          i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
+        }
+        oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
+        oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
+        oblTc.closePath(); oblTc.fillStyle = 'rgba(30,80,150,0.22)'; oblTc.fill();
+
+        // 410 kyr markers (10 × 41 kyr obliquity cycle)
+        oblTc.setLineDash([2, 6]); oblTc.strokeStyle = 'rgba(160,110,50,0.35)'; oblTc.lineWidth = 1;
+        for (let kyr = 410; kyr <= 1000; kyr += 410) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          oblTc.beginPath(); oblTc.moveTo(xi, TL_PAD_T); oblTc.lineTo(xi, TL_PAD_T + TL_H); oblTc.stroke();
+        }
+        oblTc.setLineDash([]);
+
+        const fracT = Math.abs(oblT) / 1_000_000;
+        const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+        oblTc.strokeStyle = '#f0e060'; oblTc.lineWidth = 1.5;
+        oblTc.beginPath(); oblTc.moveTo(cursorX, TL_PAD_T - 2); oblTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); oblTc.stroke();
+        const oblDeg = earthObliquity(oblT) * 180 / Math.PI;
+        const dotY = TL_PAD_T + TL_H - ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+        oblTc.beginPath();
+        oblTc.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
+        oblTc.fillStyle = '#f0e060'; oblTc.fill();
+
+        oblTc.strokeStyle = '#7aaacf'; oblTc.lineWidth = 1;
+        oblTc.beginPath(); oblTc.moveTo(TL_PAD_L, TL_PAD_T); oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); oblTc.stroke();
+
+        oblTc.fillStyle = '#90b8d8'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
+        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          oblTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
+        }
+        oblTc.fillStyle = '#7aaacf'; oblTc.textAlign = 'center';
+        oblTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+        oblTc.save(); oblTc.translate(12, TL_PAD_T + TL_H / 2); oblTc.rotate(-Math.PI / 2);
+        oblTc.fillStyle = '#8ab4d4'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
+        oblTc.fillText('ε', 0, 0); oblTc.restore();
+
+        oblTc.textAlign = 'right';
+        for (const dv of [21, 22, 23, 24]) {
+          const yi = TL_PAD_T + TL_H - ((dv - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+          if (yi < TL_PAD_T || yi > TL_PAD_T + TL_H) continue;
+          oblTc.fillStyle = '#8ab4d4'; oblTc.font = "0.62rem 'Courier New', monospace";
+          oblTc.fillText(`${dv}°`, TL_PAD_L - 4, yi + 4);
+          oblTc.beginPath(); oblTc.strokeStyle = 'rgba(60,100,140,0.3)'; oblTc.lineWidth = 0.5;
+          oblTc.moveTo(TL_PAD_L, yi); oblTc.lineTo(TL_PAD_L + TL_W, yi); oblTc.stroke();
+        }
+      }
+
+      // ─── Stats ────────────────────────────────────────────────────────────────────
+
+      function updateStats(t, e) {
+        const kyrBP = Math.abs(t / 1000);
+        document.getElementById('statTime').textContent =
+          kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
+        document.getElementById('statEcc').textContent = e.toFixed(6);
+        document.getElementById('statPeri').textContent = `${(1 - e).toFixed(4)} AU`;
+        document.getElementById('statApo').textContent = `${(1 + e).toFixed(4)} AU`;
+      }
+
+      function updateOblStats(t, oblDeg) {
+        const kyrBP = Math.abs(t / 1000);
+        document.getElementById('oblStatTime').textContent =
+          kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
+        document.getElementById('oblStatDeg').textContent = `${oblDeg.toFixed(4)}°`;
+        const oblDeg2 = earthObliquity(t - 5000) * 180 / Math.PI;
+        const rate = (oblDeg - oblDeg2) / 5;
+        document.getElementById('oblStatRate').textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}°/kyr`;
+      }
+
+      // ─── Draw axial precession diagram ───────────────────────────────────────────
+
+      function drawAxialDiagram(psiRad, epsRad) {
+        axC.clearRect(0, 0, OW, OH);
+
+        const cx = OW / 2;
+        const cy = OH / 2 + 30;
+        const ER = 62;          // Earth radius px
+        const AN = ER * 2.2;    // north axis extension px
+        const AS = ER * 1.1;    // south axis extension px
+        const ELEV = 22 * Math.PI / 180;
+        const cosV = Math.cos(ELEV), sinV = Math.sin(ELEV);
+        const cosEps = Math.cos(epsRad), sinEps = Math.sin(epsRad);
+        const cosPsi = Math.cos(psiRad), sinPsi = Math.sin(psiRad);
+
+        // Orthographic projection: ecliptic (x right, y depth, z up) → canvas
+        function proj(wx, wy, wz) {
+          return { x: cx + wx, y: cy - (wz * cosV + wy * sinV) };
+        }
+
+        // Draw arc of cone circle (frontHalf: wy<=0, backHalf: wy>0)
+        function coneArc(frontHalf, backHalf, style, lw, dash) {
+          const N = 120;
+          axC.save();
+          if (dash) axC.setLineDash(dash);
+          axC.strokeStyle = style; axC.lineWidth = lw;
+          axC.beginPath();
+          let pen = false;
+          for (let i = 0; i <= N; i++) {
+            const t = (i / N) * 2 * Math.PI;
+            const wy = sinEps * Math.sin(t) * AN;
+            const back = wy > 0;
+            if ((frontHalf && !back) || (backHalf && back)) {
+              const p = proj(sinEps * Math.cos(t) * AN, wy, cosEps * AN);
+              if (!pen) { axC.moveTo(p.x, p.y); pen = true; } else axC.lineTo(p.x, p.y);
+            } else pen = false;
+          }
+          axC.stroke();
+          axC.restore();
+        }
+
+        // Draw arc of equatorial ring (same front/back split)
+        function eqArc(frontHalf, backHalf, style, lw, dash) {
+          const N = 72;
+          axC.save();
+          if (dash) axC.setLineDash(dash);
+          axC.strokeStyle = style; axC.lineWidth = lw;
+          axC.beginPath();
+          let pen = false;
+          for (let i = 0; i <= N; i++) {
+            const t = (i / N) * 2 * Math.PI;
+            const wx = ER * (Math.cos(t) * sinPsi + Math.sin(t) * cosEps * cosPsi);
+            const wy = ER * (-Math.cos(t) * cosPsi + Math.sin(t) * cosEps * sinPsi);
+            const wz = ER * (-Math.sin(t) * sinEps);
+            const back = wy > 0;
+            if ((frontHalf && !back) || (backHalf && back)) {
+              const p = proj(wx, wy, wz);
+              if (!pen) { axC.moveTo(p.x, p.y); pen = true; } else axC.lineTo(p.x, p.y);
+            } else pen = false;
+          }
+          axC.stroke();
+          axC.restore();
+        }
+
+        // 1. Stars
+        drawStars(axC);
+
+        // 2. Ecliptic plane reference ellipse
+        const planeR = ER * 2.85, planeRy = planeR * sinV;
+        axC.save();
+        axC.setLineDash([3, 7]);
+        axC.beginPath();
+        axC.ellipse(cx, cy, planeR, planeRy, 0, 0, 2 * Math.PI);
+        axC.strokeStyle = 'rgba(28,65,115,0.92)'; axC.lineWidth = 1; axC.stroke();
+        axC.setLineDash([]);
+        axC.restore();
+        label(axC, 'ECLIPTIC PLANE', cx + planeR + 4, cy + 4, 'rgba(35,82,142,0.95)', '0.6rem', 'left');
+
+        // 3. Ecliptic pole dashed line
+        const eclTop = proj(0, 0, AN * 1.08), eclBot = proj(0, 0, -AS * 0.5);
+        axC.save();
+        axC.setLineDash([4, 9]);
+        axC.beginPath();
+        axC.moveTo(eclBot.x, eclBot.y); axC.lineTo(eclTop.x, eclTop.y);
+        axC.strokeStyle = 'rgba(42,92,162,0.88)'; axC.lineWidth = 1; axC.stroke();
+        axC.setLineDash([]);
+        axC.restore();
+        label(axC, 'ECLIPTIC POLE', eclTop.x, eclTop.y - 29, 'rgba(42,92,162,0.92)', '0.6rem', 'center');
+
+        // 4. Cone generators (drawn before Earth fill so Earth covers their inner ends)
+        for (let i = 0; i < 18; i++) {
+          const t = (i / 18) * 2 * Math.PI;
+          const wy = sinEps * Math.sin(t) * AN;
+          const tip = proj(sinEps * Math.cos(t) * AN, wy, cosEps * AN);
+          axC.beginPath(); axC.moveTo(cx, cy); axC.lineTo(tip.x, tip.y);
+          axC.strokeStyle = wy < 0 ? 'rgba(52,108,182,0.1)' : 'rgba(32,72,138,0.06)';
+          axC.lineWidth = 0.7; axC.stroke();
+        }
+
+        // 5. Cone circle (back dashed, front solid)
+        coneArc(false, true, 'rgba(52,118,198,0.25)', 1, [2, 5]);
+        coneArc(true, false, 'rgba(52,118,198,0.52)', 1.2, null);
+
+        // 6. Recent ~8000-yr trail on cone circle
+        const TRAIL_ARC = (8000 / 25694) * 2 * Math.PI;
+        axC.beginPath();
+        for (let i = 0; i <= 80; i++) {
+          const t = psiRad - TRAIL_ARC + (i / 80) * TRAIL_ARC;
+          const p = proj(sinEps * Math.cos(t) * AN, sinEps * Math.sin(t) * AN, cosEps * AN);
+          if (i === 0) axC.moveTo(p.x, p.y); else axC.lineTo(p.x, p.y);
+        }
+        axC.strokeStyle = 'rgba(245,200,66,0.4)'; axC.lineWidth = 2.2; axC.stroke();
+
+        // 7. Earth globe
+        const glowX = cx - ER * 0.43, glowY = cy - ER * 0.43;
+        const eg = axC.createRadialGradient(glowX, glowY, 0, cx, cy, ER);
+        eg.addColorStop(0, '#5bbde8');
+        eg.addColorStop(0.22, '#2f88cc');
+        eg.addColorStop(0.52, '#1a568e');
+        eg.addColorStop(0.80, '#0e2f56');
+        eg.addColorStop(1, '#040f22');
+        axC.beginPath(); axC.arc(cx, cy, ER, 0, 2 * Math.PI);
+        axC.fillStyle = eg; axC.fill();
+
+        const ag = axC.createRadialGradient(cx, cy, ER * 0.88, cx, cy, ER * 1.2);
+        ag.addColorStop(0, 'rgba(72,152,242,0.20)');
+        ag.addColorStop(0.7, 'rgba(48,118,212,0.07)');
+        ag.addColorStop(1, 'rgba(28,80,182,0)');
+        axC.beginPath(); axC.arc(cx, cy, ER * 1.2, 0, 2 * Math.PI);
+        axC.fillStyle = ag; axC.fill();
+
+        axC.beginPath(); axC.arc(cx, cy, ER, 0, 2 * Math.PI);
+        axC.strokeStyle = 'rgba(58,118,210,0.38)'; axC.lineWidth = 1; axC.stroke();
+
+        // 8. Earth equatorial ring
+        eqArc(false, true, 'rgba(88,158,225,0.28)', 1, [2, 4]);
+        eqArc(true, false, 'rgba(88,158,225,0.65)', 1.3, null);
+
+        // 9. Rotation axis line
+        const np = proj(sinEps * cosPsi * AN, sinEps * sinPsi * AN, cosEps * AN);
+        const sp = proj(-sinEps * cosPsi * AS, -sinEps * sinPsi * AS, -cosEps * AS);
+        axC.beginPath(); axC.moveTo(sp.x, sp.y); axC.lineTo(np.x, np.y);
+        axC.strokeStyle = 'rgba(245,200,66,0.92)'; axC.lineWidth = 2; axC.stroke();
+
+        // 10. Pole stars on cone circle
+        const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        let nearestStar = null, nearestDist = Infinity;
+        for (const star of POLE_STARS) {
+          const sa = ((star.psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          let d = Math.abs(psiMod - sa); if (d > Math.PI) d = 2 * Math.PI - d;
+          if (d < nearestDist) { nearestDist = d; nearestStar = star; }
+        }
+        for (const star of POLE_STARS) {
+          const sp2 = proj(sinEps * Math.cos(star.psi) * AN, sinEps * Math.sin(star.psi) * AN, cosEps * AN);
+          const isNearest = star === nearestStar && nearestDist < Math.PI / 9;
+          axC.beginPath(); axC.arc(sp2.x, sp2.y, isNearest ? 5 : 3.5, 0, 2 * Math.PI);
+          axC.fillStyle = star.color; axC.fill();
+          if (isNearest) { axC.strokeStyle = '#fff'; axC.lineWidth = 1.2; axC.stroke(); }
+          label(axC, star.name, sp2.x, sp2.y - (isNearest ? 11 : 8), isNearest ? '#f0f8ff' : star.color, '0.65rem', 'center');
+        }
+
+        // 11. North pole X marker
+        const XR = 7;
+        axC.save();
+        axC.strokeStyle = '#f5c842'; axC.lineWidth = 2.2; axC.lineCap = 'round';
+        axC.beginPath(); axC.moveTo(np.x - XR, np.y - XR); axC.lineTo(np.x + XR, np.y + XR); axC.stroke();
+        axC.beginPath(); axC.moveTo(np.x + XR, np.y - XR); axC.lineTo(np.x - XR, np.y + XR); axC.stroke();
+        axC.restore();
+
+        // South pole dot
+        axC.beginPath(); axC.arc(sp.x, sp.y, 2.5, 0, 2 * Math.PI);
+        axC.fillStyle = 'rgba(155,185,215,0.5)'; axC.fill();
+
+        // 12. Labels
+        label(axC, 'N POLE', np.x + (np.x > cx ? 12 : -12), np.y, '#f5c842', '0.68rem', np.x > cx ? 'left' : 'right');
+        label(axC, 'S POLE', sp.x + (sp.x > cx ? 10 : -10), sp.y, 'rgba(155,185,215,0.55)', '0.6rem', sp.x > cx ? 'left' : 'right');
+
+        const psiDeg = psiMod * 180 / Math.PI;
+        label(axC, `ψ = ${psiDeg.toFixed(1)}°`, OW - 14, 26, '#9abedf', '0.78rem', 'right');
+        label(axC, `ε = ${(epsRad * 180 / Math.PI).toFixed(2)}°`, OW - 14, 42, '#7090a8', '0.72rem', 'right');
+        label(axC, 'T ≈ 25,694 yr / cycle', OW - 14, 58, '#4a6a88', '0.65rem', 'right');
+      }
+
+      // ─── Draw axial precession timeline ──────────────────────────────────────────
+
+      function drawAxialTimeline(axT) {
+        axTc.clearRect(0, 0, TW, TH);
+        axTc.fillStyle = '#2a4a6a'; axTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+        // Continuous wave: minimum angular distance from ψ=0 (Polaris), 0°–180°
+        axTc.strokeStyle = '#6090c0'; axTc.lineWidth = 0.9;
+        axTc.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const psiMod = (((axialData[i] % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
+          const dist = Math.min(psiMod, 2 * Math.PI - psiMod);  // 0..π
+          const y = TL_PAD_T + TL_H - (dist / Math.PI) * TL_H;
+          if (i === 0) axTc.moveTo(x, y); else axTc.lineTo(x, y);
+        }
+        axTc.stroke();
+
+        // 90° reference dashed line
+        const midY = TL_PAD_T + TL_H / 2;
+        axTc.save(); axTc.setLineDash([3, 5]);
+        axTc.strokeStyle = 'rgba(80,120,160,0.4)'; axTc.lineWidth = 0.8;
+        axTc.beginPath(); axTc.moveTo(TL_PAD_L, midY); axTc.lineTo(TL_PAD_L + TL_W, midY); axTc.stroke();
+        axTc.restore();
+
+        // Cursor
+        const fracT = Math.abs(axT) / 1_000_000;
+        const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+        axTc.strokeStyle = '#f0e060'; axTc.lineWidth = 1.5;
+        axTc.beginPath(); axTc.moveTo(cursorX, TL_PAD_T - 2); axTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); axTc.stroke();
+        const rawCur = earthAxialPrecession(axT);
+        const curMod = (((rawCur % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
+        const curDist = Math.min(curMod, 2 * Math.PI - curMod);
+        const dotY = TL_PAD_T + TL_H - (curDist / Math.PI) * TL_H;
+        axTc.beginPath(); axTc.arc(cursorX, dotY, 3.5, 0, Math.PI * 2);
+        axTc.fillStyle = '#f0e060'; axTc.fill();
+
+        // Axes
+        axTc.strokeStyle = '#7aaacf'; axTc.lineWidth = 1;
+        axTc.beginPath(); axTc.moveTo(TL_PAD_L, TL_PAD_T); axTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); axTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); axTc.stroke();
+
+        // X labels
+        axTc.fillStyle = '#90b8d8'; axTc.font = "0.65rem 'Courier New', monospace"; axTc.textAlign = 'center';
+        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
+          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+          axTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
+        }
+        axTc.fillStyle = '#7aaacf'; axTc.textAlign = 'center';
+        axTc.fillText('← kyr BP', TL_PAD_L + TL_W / 2, TH - 2);
+
+        // Y label
+        axTc.save(); axTc.translate(12, TL_PAD_T + TL_H / 2); axTc.rotate(-Math.PI / 2);
+        axTc.fillStyle = '#8ab4d4'; axTc.font = "0.6rem 'Courier New', monospace"; axTc.textAlign = 'center';
+        axTc.fillText('∠ from Polaris', 0, 0); axTc.restore();
+
+        // Y ticks: 0° (bottom, nearest Polaris) to 180° (top, farthest)
+        axTc.textAlign = 'right';
+        for (const [deg, label_] of [[0, '0°'], [45, '45°'], [90, '90°'], [135, '135°'], [180, '180°']]) {
+          const yi = TL_PAD_T + TL_H - (deg / 180) * TL_H;
+          axTc.fillStyle = '#8ab4d4'; axTc.font = "0.58rem 'Courier New', monospace";
+          axTc.fillText(label_, TL_PAD_L - 4, yi + 4);
+          axTc.beginPath(); axTc.strokeStyle = 'rgba(60,100,140,0.25)'; axTc.lineWidth = 0.5;
+          axTc.moveTo(TL_PAD_L, yi); axTc.lineTo(TL_PAD_L + TL_W, yi); axTc.stroke();
+        }
+      }
+
+      // ─── Axial precession stats ───────────────────────────────────────────────────
+
+      function updateAxStats(t, psiRad) {
+        const kyrBP = Math.abs(t / 1000);
+        document.getElementById('axStatTime').textContent =
+          kyrBP < 0.1 ? 'J2000.0' : `${Math.round(Math.abs(t)).toLocaleString('en-US')} yr BP`;
+
+        const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        document.getElementById('axStatPsi').textContent = `${(psiMod * 180 / Math.PI).toFixed(1)}°`;
+
+        let nearestStar = null, nearestDist = Infinity;
+        for (const star of POLE_STARS) {
+          const sAngle = ((star.psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          let d = Math.abs(psiMod - sAngle);
+          if (d > Math.PI) d = 2 * Math.PI - d;
+          if (d < nearestDist) { nearestDist = d; nearestStar = star; }
+        }
+        document.getElementById('axStatStar').textContent =
+          nearestDist < Math.PI / 9 ? nearestStar.name : '—';
+      }
+
+      // ─── Unified animation loop ───────────────────────────────────────────────────
+
+      function frame(timestamp) {
+        if (activePage === 'orbit') {
+          if (lastTimestamp !== null && playing) {
+            const dt = (timestamp - lastTimestamp) / 1000;
+            currentT += getSpeed() * 1000 * dt;
+            if (currentT > T_MIN) currentT = T_MAX;
+          }
+          lastTimestamp = timestamp;
+          const e = earthEccentricity(currentT);
+          drawOrbit(e);
+          drawTimeline(currentT);
+          updateStats(currentT, e);
+          if (soundOn && oscillator) oscillator.frequency.setTargetAtTime(eccToHz(e), audioCtx.currentTime, 0.05);
+        } else if (activePage === 'obliquity') {
+          if (oblLastTimestamp !== null && oblPlaying) {
+            const dt = (timestamp - oblLastTimestamp) / 1000;
+            oblCurrentT += getOblSpeed() * 1000 * dt;
+            if (oblCurrentT > 0) oblCurrentT = OBL_T_MAX;
+          }
+          oblLastTimestamp = timestamp;
+          const oblDeg = earthObliquity(oblCurrentT) * 180 / Math.PI;
+          drawObliquityDiagram(oblDeg);
+          drawObliquityTimeline(oblCurrentT);
+          updateOblStats(oblCurrentT, oblDeg);
+          if (oblSoundOn && oblOscillator) oblOscillator.frequency.setTargetAtTime(oblToHz(oblDeg), oblAudioCtx.currentTime, 0.05);
+        } else if (activePage === 'precession') {
+          if (prLastTimestamp !== null && prPlaying) {
+            const dt = (timestamp - prLastTimestamp) / 1000;
+            prCurrentT += getPrSpeed() * 1000 * dt;
+            if (prCurrentT > 0) prCurrentT = PR_T_MAX;
+          }
+          prLastTimestamp = timestamp;
+          const pibarRad = earthLongitudePerihelion(prCurrentT);
+          const prIdx = earthPrecessionIndex(prCurrentT);
+          drawPrecessionDiagram(pibarRad, prIdx);
+          drawPrecessionTimeline(prCurrentT);
+          updatePrStats(prCurrentT, prIdx, pibarRad);
+          if (prSoundOn && prOscillator) prOscillator.frequency.setTargetAtTime(prToHz(prIdx), prAudioCtx.currentTime, 0.05);
+        } else if (activePage === 'axial') {
+          if (axLastTimestamp !== null && axPlaying) {
+            const dt = (timestamp - axLastTimestamp) / 1000;
+            axCurrentT += getAxSpeed() * 1000 * dt;
+            if (axCurrentT > 0) axCurrentT = AX_T_MAX;
+          }
+          axLastTimestamp = timestamp;
+          const psiRad = earthAxialPrecession(axCurrentT);
+          const epsRad = earthObliquity(axCurrentT);
+          drawAxialDiagram(psiRad, epsRad);
+          drawAxialTimeline(axCurrentT);
+          updateAxStats(axCurrentT, psiRad);
+          if (axSoundOn && axOscillator) axOscillator.frequency.setTargetAtTime(axToHz(psiRad), axAudioCtx.currentTime, 0.05);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      // ─── Orbit controls ───────────────────────────────────────────────────────────
+
+      document.getElementById('btnPlay').addEventListener('click', function () {
+        playing = !playing;
+        this.innerHTML = playing ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+        if (playing) lastTimestamp = null;
+      });
+
+      document.getElementById('btnReset').addEventListener('click', () => {
+        currentT = T_MAX; lastTimestamp = null;
+      });
+
+      timelineCanvas.addEventListener('click', function (ev) {
+        const rect = this.getBoundingClientRect();
+        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        currentT = -(1 - frac) * 1_000_000;
+        lastTimestamp = null;
+      });
+
+      // ─── Orbit sound ──────────────────────────────────────────────────────────────
+
+      let audioCtx = null, oscillator = null, gainNode = null, soundOn = false;
+
+      document.getElementById('btnSound').addEventListener('click', function () {
+        if (!soundOn) {
+          audioCtx = audioCtx || new AudioContext();
+          oscillator = audioCtx.createOscillator();
+          gainNode = audioCtx.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.value = eccToHz(earthEccentricity(currentT));
+          gainNode.gain.value = 0.18;
+          oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+          oscillator.start();
+          soundOn = true; this.textContent = '⏹ SOUND';
+        } else {
+          oscillator.stop(); oscillator = null; soundOn = false; this.textContent = '♩ SOUND';
+        }
+      });
+
+      function eccToHz(e) { return 80 + (e / 0.065) * 440; }
+
+      // ─── Obliquity controls ───────────────────────────────────────────────────────
+
+      document.getElementById('oblBtnPlay').addEventListener('click', function () {
+        oblPlaying = !oblPlaying;
+        this.innerHTML = oblPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+        if (oblPlaying) oblLastTimestamp = null;
+      });
+
+      document.getElementById('oblBtnReset').addEventListener('click', () => {
+        oblCurrentT = OBL_T_MAX; oblLastTimestamp = null;
+      });
+
+      oblTlCanvas.addEventListener('click', function (ev) {
+        const rect = this.getBoundingClientRect();
+        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        oblCurrentT = -(1 - frac) * 1_000_000;
+        oblLastTimestamp = null;
+      });
+
+      // ─── Obliquity sound ──────────────────────────────────────────────────────────
+
+      let oblAudioCtx = null, oblOscillator = null, oblGainNode = null, oblSoundOn = false;
+
+      document.getElementById('oblBtnSound').addEventListener('click', function () {
+        if (!oblSoundOn) {
+          oblAudioCtx = oblAudioCtx || new AudioContext();
+          oblOscillator = oblAudioCtx.createOscillator();
+          oblGainNode = oblAudioCtx.createGain();
+          oblOscillator.type = 'sine';
+          oblOscillator.frequency.value = oblToHz(earthObliquity(oblCurrentT) * 180 / Math.PI);
+          oblGainNode.gain.value = 0.18;
+          oblOscillator.connect(oblGainNode); oblGainNode.connect(oblAudioCtx.destination);
+          oblOscillator.start();
+          oblSoundOn = true; this.textContent = '⏹ SOUND';
+        } else {
+          oblOscillator.stop(); oblOscillator = null; oblSoundOn = false; this.textContent = '♩ SOUND';
+        }
+      });
+
+      function oblToHz(oblDeg) { return 80 + ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * 440; }
+
+      // ─── Precession controls ──────────────────────────────────────────────────────
+
+      document.getElementById('prBtnPlay').addEventListener('click', function () {
+        prPlaying = !prPlaying;
+        this.innerHTML = prPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+        if (prPlaying) prLastTimestamp = null;
+      });
+
+      document.getElementById('prBtnReset').addEventListener('click', () => {
+        prCurrentT = PR_T_MAX; prLastTimestamp = null;
+      });
+
+      prTlCanvas.addEventListener('click', function (ev) {
+        const rect = this.getBoundingClientRect();
+        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        prCurrentT = -(1 - frac) * 1_000_000;
+        prLastTimestamp = null;
+      });
+
+      // ─── Precession sound ─────────────────────────────────────────────────────────
+
+      let prAudioCtx = null, prOscillator = null, prGainNode = null, prSoundOn = false;
+
+      document.getElementById('prBtnSound').addEventListener('click', function () {
+        if (!prSoundOn) {
+          prAudioCtx = prAudioCtx || new AudioContext();
+          prOscillator = prAudioCtx.createOscillator();
+          prGainNode = prAudioCtx.createGain();
+          prOscillator.type = 'sine';
+          prOscillator.frequency.value = prToHz(earthPrecessionIndex(prCurrentT));
+          prGainNode.gain.value = 0.18;
+          prOscillator.connect(prGainNode); prGainNode.connect(prAudioCtx.destination);
+          prOscillator.start();
+          prSoundOn = true; this.textContent = '⏹ SOUND';
+        } else {
+          prOscillator.stop(); prOscillator = null; prSoundOn = false; this.textContent = '♩ SOUND';
+        }
+      });
+
+      function prToHz(prIdx) { return 80 + ((prIdx + PREC_MAX) / (2 * PREC_MAX)) * 440; }
+
+      // ─── Axial precession controls ────────────────────────────────────────────────
+
+      document.getElementById('axBtnPlay').addEventListener('click', function () {
+        axPlaying = !axPlaying;
+        this.innerHTML = axPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+        if (axPlaying) axLastTimestamp = null;
+      });
+
+      document.getElementById('axBtnReset').addEventListener('click', () => {
+        axCurrentT = AX_T_MAX; axLastTimestamp = null;
+      });
+
+      axTlCanvas.addEventListener('click', function (ev) {
+        const rect = this.getBoundingClientRect();
+        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        axCurrentT = -(1 - frac) * 1_000_000;
+        axLastTimestamp = null;
+      });
+
+      // ─── Axial precession sound ───────────────────────────────────────────────────
+
+      let axAudioCtx = null, axOscillator = null, axGainNode = null, axSoundOn = false;
+
+      document.getElementById('axBtnSound').addEventListener('click', function () {
+        if (!axSoundOn) {
+          axAudioCtx = axAudioCtx || new AudioContext();
+          axOscillator = axAudioCtx.createOscillator();
+          axGainNode = axAudioCtx.createGain();
+          axOscillator.type = 'sine';
+          axOscillator.frequency.value = axToHz(earthAxialPrecession(axCurrentT));
+          axGainNode.gain.value = 0.18;
+          axOscillator.connect(axGainNode); axGainNode.connect(axAudioCtx.destination);
+          axOscillator.start();
+          axSoundOn = true; this.textContent = '⏹ SOUND';
+        } else {
+          axOscillator.stop(); axOscillator = null; axSoundOn = false; this.textContent = '♩ SOUND';
+        }
+      });
+
+      // Minimum angular distance from ψ to 0 (mod 2π): 0 → 520 Hz, π → 80 Hz
+      function axToHz(psiRad) {
+        const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const dist = Math.min(psiMod, 2 * Math.PI - psiMod);  // 0..π
+        return 80 + (1 - dist / Math.PI) * 440;
+      }
+
+      // ─── Start ────────────────────────────────────────────────────────────────────
+
       requestAnimationFrame(frame);
-    }
-
-    // ─── Orbit controls ───────────────────────────────────────────────────────────
-
-    document.getElementById('btnPlay').addEventListener('click', function () {
-      playing = !playing;
-      this.innerHTML = playing ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
-      if (playing) lastTimestamp = null;
-    });
-
-    document.getElementById('btnReset').addEventListener('click', () => {
-      currentT = T_MAX; lastTimestamp = null;
-    });
-
-    timelineCanvas.addEventListener('click', function (ev) {
-      const rect = this.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
-      currentT = -(1 - frac) * 1_000_000;
-      lastTimestamp = null;
-    });
-
-    // ─── Orbit sound ──────────────────────────────────────────────────────────────
-
-    let audioCtx = null, oscillator = null, gainNode = null, soundOn = false;
-
-    document.getElementById('btnSound').addEventListener('click', function () {
-      if (!soundOn) {
-        audioCtx = audioCtx || new AudioContext();
-        oscillator = audioCtx.createOscillator();
-        gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.value = eccToHz(earthEccentricity(currentT));
-        gainNode.gain.value = 0.18;
-        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        soundOn = true; this.textContent = '⏹ SOUND';
-      } else {
-        oscillator.stop(); oscillator = null; soundOn = false; this.textContent = '♩ SOUND';
-      }
-    });
-
-    function eccToHz(e) { return 80 + (e / 0.065) * 440; }
-
-    // ─── Obliquity controls ───────────────────────────────────────────────────────
-
-    document.getElementById('oblBtnPlay').addEventListener('click', function () {
-      oblPlaying = !oblPlaying;
-      this.innerHTML = oblPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
-      if (oblPlaying) oblLastTimestamp = null;
-    });
-
-    document.getElementById('oblBtnReset').addEventListener('click', () => {
-      oblCurrentT = OBL_T_MAX; oblLastTimestamp = null;
-    });
-
-    oblTlCanvas.addEventListener('click', function (ev) {
-      const rect = this.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
-      oblCurrentT = -(1 - frac) * 1_000_000;
-      oblLastTimestamp = null;
-    });
-
-    // ─── Obliquity sound ──────────────────────────────────────────────────────────
-
-    let oblAudioCtx = null, oblOscillator = null, oblGainNode = null, oblSoundOn = false;
-
-    document.getElementById('oblBtnSound').addEventListener('click', function () {
-      if (!oblSoundOn) {
-        oblAudioCtx = oblAudioCtx || new AudioContext();
-        oblOscillator = oblAudioCtx.createOscillator();
-        oblGainNode = oblAudioCtx.createGain();
-        oblOscillator.type = 'sine';
-        oblOscillator.frequency.value = oblToHz(earthObliquity(oblCurrentT) * 180 / Math.PI);
-        oblGainNode.gain.value = 0.18;
-        oblOscillator.connect(oblGainNode); oblGainNode.connect(oblAudioCtx.destination);
-        oblOscillator.start();
-        oblSoundOn = true; this.textContent = '⏹ SOUND';
-      } else {
-        oblOscillator.stop(); oblOscillator = null; oblSoundOn = false; this.textContent = '♩ SOUND';
-      }
-    });
-
-    function oblToHz(oblDeg) { return 80 + ((oblDeg - OBL_MIN_DEG) / OBL_RANGE) * 440; }
-
-    // ─── Precession controls ──────────────────────────────────────────────────────
-
-    document.getElementById('prBtnPlay').addEventListener('click', function () {
-      prPlaying = !prPlaying;
-      this.innerHTML = prPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
-      if (prPlaying) prLastTimestamp = null;
-    });
-
-    document.getElementById('prBtnReset').addEventListener('click', () => {
-      prCurrentT = PR_T_MAX; prLastTimestamp = null;
-    });
-
-    prTlCanvas.addEventListener('click', function (ev) {
-      const rect = this.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
-      prCurrentT = -(1 - frac) * 1_000_000;
-      prLastTimestamp = null;
-    });
-
-    // ─── Precession sound ─────────────────────────────────────────────────────────
-
-    let prAudioCtx = null, prOscillator = null, prGainNode = null, prSoundOn = false;
-
-    document.getElementById('prBtnSound').addEventListener('click', function () {
-      if (!prSoundOn) {
-        prAudioCtx = prAudioCtx || new AudioContext();
-        prOscillator = prAudioCtx.createOscillator();
-        prGainNode = prAudioCtx.createGain();
-        prOscillator.type = 'sine';
-        prOscillator.frequency.value = prToHz(earthPrecessionIndex(prCurrentT));
-        prGainNode.gain.value = 0.18;
-        prOscillator.connect(prGainNode); prGainNode.connect(prAudioCtx.destination);
-        prOscillator.start();
-        prSoundOn = true; this.textContent = '⏹ SOUND';
-      } else {
-        prOscillator.stop(); prOscillator = null; prSoundOn = false; this.textContent = '♩ SOUND';
-      }
-    });
-
-    function prToHz(prIdx) { return 80 + ((prIdx + PREC_MAX) / (2 * PREC_MAX)) * 440; }
-
-    // ─── Axial precession controls ────────────────────────────────────────────────
-
-    document.getElementById('axBtnPlay').addEventListener('click', function () {
-      axPlaying = !axPlaying;
-      this.innerHTML = axPlaying ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
-      if (axPlaying) axLastTimestamp = null;
-    });
-
-    document.getElementById('axBtnReset').addEventListener('click', () => {
-      axCurrentT = AX_T_MAX; axLastTimestamp = null;
-    });
-
-    axTlCanvas.addEventListener('click', function (ev) {
-      const rect = this.getBoundingClientRect();
-      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
-      axCurrentT = -(1 - frac) * 1_000_000;
-      axLastTimestamp = null;
-    });
-
-    // ─── Axial precession sound ───────────────────────────────────────────────────
-
-    let axAudioCtx = null, axOscillator = null, axGainNode = null, axSoundOn = false;
-
-    document.getElementById('axBtnSound').addEventListener('click', function () {
-      if (!axSoundOn) {
-        axAudioCtx = axAudioCtx || new AudioContext();
-        axOscillator = axAudioCtx.createOscillator();
-        axGainNode = axAudioCtx.createGain();
-        axOscillator.type = 'sine';
-        axOscillator.frequency.value = axToHz(earthAxialPrecession(axCurrentT));
-        axGainNode.gain.value = 0.18;
-        axOscillator.connect(axGainNode); axGainNode.connect(axAudioCtx.destination);
-        axOscillator.start();
-        axSoundOn = true; this.textContent = '⏹ SOUND';
-      } else {
-        axOscillator.stop(); axOscillator = null; axSoundOn = false; this.textContent = '♩ SOUND';
-      }
-    });
-
-    // Minimum angular distance from ψ to 0 (mod 2π): 0 → 520 Hz, π → 80 Hz
-    function axToHz(psiRad) {
-      const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const dist = Math.min(psiMod, 2 * Math.PI - psiMod);  // 0..π
-      return 80 + (1 - dist / Math.PI) * 440;
-    }
-
-    // ─── Start ────────────────────────────────────────────────────────────────────
-
-    requestAnimationFrame(frame);
-  </script>
+    </script>
 </body>
 
 </html>
