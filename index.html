@@ -112,7 +112,7 @@
     #controls,
     #obl-controls,
     #pre-controls,
-    #ax-controls {
+    #ax-controls, #combine-controls {
       display: flex;
       align-items: center;
       gap: 18px;
@@ -303,6 +303,7 @@
       <button class="tab" id="tab-obliquity" onclick="showPage('obliquity')">PRECESSION of OBLIQUITY</button>
       <button class="tab" id="tab-precession" onclick="showPage('precession')">PRECESSION of APSIDES</button>
       <button class="tab" id="tab-axial" onclick="showPage('axial')">PRECESSION of AXIAL TILT</button>
+      <button class="tab" id="tab-combine" onclick="showPage('combine')">COMBINE</button>
     </div>
 
     <!-- Page 1: Eccentricity / Orbit -->
@@ -454,6 +455,42 @@
         <span><span class="legend-dot" style="background:#6090d0"></span>Deneb</span>
       </div>
     </div>
+
+    <!-- Page 5: Combined Timelines -->
+    <div id="page-combine" class="page" style="display:none">
+      <div class="question">
+        <h1>All Four Patterns Together</h1>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin:0 0 10px 0">
+        <div style="background:#2a4a6a;padding:4px 0;position:relative">
+          <div style="color:#7aaacf;font-size:0.65rem;margin:2px 50px 2px 50px;font-family:'Courier New',monospace">ECCENTRICITY <span id="combineMuteLabel1" style="position:absolute;right:10px;top:2px;font-size:0.55rem;color:#888">Click to Mute</span></div>
+          <canvas id="combineTimelineCanvas1" width="620" height="80" style="display:block;cursor:pointer"></canvas>
+        </div>
+        <div style="background:#2a4a6a;padding:4px 0;position:relative">
+          <div style="color:#7aaacf;font-size:0.65rem;margin:2px 50px 2px 50px;font-family:'Courier New',monospace">OBLIQUITY <span id="combineMuteLabel2" style="position:absolute;right:10px;top:2px;font-size:0.55rem;color:#888">Click to Mute</span></div>
+          <canvas id="combineTimelineCanvas2" width="620" height="80" style="display:block;cursor:pointer"></canvas>
+        </div>
+        <div style="background:#2a4a6a;padding:4px 0;position:relative">
+          <div style="color:#7aaacf;font-size:0.65rem;margin:2px 50px 2px 50px;font-family:'Courier New',monospace">PRECESSION OF APSIDES <span id="combineMuteLabel3" style="position:absolute;right:10px;top:2px;font-size:0.55rem;color:#888">Click to Mute</span></div>
+          <canvas id="combineTimelineCanvas3" width="620" height="80" style="display:block;cursor:pointer"></canvas>
+        </div>
+        <div style="background:#1a3a4a;padding:4px 0;position:relative;border-top:2px solid #1a5a6a">
+          <div style="color:#b0d8f0;font-size:0.65rem;margin:2px 50px 2px 50px;font-family:'Courier New',monospace;font-weight:bold">COMBINED<span id="combineMuteLabel5" style="position:absolute;right:10px;top:2px;font-size:0.55rem;color:#888">Click to Mute</span></div>
+          <canvas id="combineTimelineCanvas5" width="620" height="80" style="display:block;cursor:pointer"></canvas>
+        </div>
+      </div>
+      <div id="combine-controls">
+        <button id="combineBtnPlay">&#9646;&#9646; PAUSE</button>
+        <label>
+          SPEED
+          <input type="range" id="combineSpeedSlider" min="0" max="100" value="28">
+          <span id="combineSpeedVal"></span>
+        </label>
+        <button id="combineBtnReset">⏱ NOW</button>
+        <button id="combineBtnSound">&#9834; SOUND</button>
+      </div>
+    </div>
+
     <footer style="margin-top:3px;width:100%;font-family:'Courier New',monospace">
       <div id="citToggle" onclick="document.getElementById('citBody').classList.toggle('cit-open')">CITATIONS &#9662;
       </div>
@@ -496,11 +533,17 @@
           axOscillator.stop(); axOscillator = null; axSoundOn = false;
           document.getElementById('axBtnSound').textContent = '♩ SOUND';
         }
+        if (name !== 'combine' && combineSoundOn && combineOscillators) {
+          combineOscillators.forEach(osc => osc.stop());
+          combineOscillators = null; combineSoundOn = false;
+          document.getElementById('combineBtnSound').textContent = '♩ SOUND';
+        }
         activePage = name;
         document.getElementById('page-orbit').style.display = name === 'orbit' ? '' : 'none';
         document.getElementById('page-obliquity').style.display = name === 'obliquity' ? '' : 'none';
         document.getElementById('page-precession').style.display = name === 'precession' ? '' : 'none';
         document.getElementById('page-axial').style.display = name === 'axial' ? '' : 'none';
+        document.getElementById('page-combine').style.display = name === 'combine' ? '' : 'none';
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('tab-' + name).classList.add('active');
         lastTimestamp = null;
@@ -530,6 +573,15 @@
       const axTlCanvas = document.getElementById('axialTimelineCanvas');
       const axC = axCanvas.getContext('2d');
       const axTc = axTlCanvas.getContext('2d');
+
+      const combineTl1 = document.getElementById('combineTimelineCanvas1');
+      const combineTl2 = document.getElementById('combineTimelineCanvas2');
+      const combineTl3 = document.getElementById('combineTimelineCanvas3');
+      const combineTl5 = document.getElementById('combineTimelineCanvas5');
+      const combTc1 = combineTl1.getContext('2d');
+      const combTc2 = combineTl2.getContext('2d');
+      const combTc3 = combineTl3.getContext('2d');
+      const combTc5 = combineTl5.getContext('2d');
 
       const OW = orbitCanvas.width, OH = orbitCanvas.height;
       const TW = timelineCanvas.width, TH = timelineCanvas.height;
@@ -631,11 +683,12 @@
 
       // ─── Precompute timelines ─────────────────────────────────────────────────────
 
-      const TIMELINE_SAMPLES = 201;
+      const TIMELINE_SAMPLE_INTERVAL = 500;  // years
+      const TIMELINE_SAMPLES = Math.ceil(Math.abs(T_MAX) / TIMELINE_SAMPLE_INTERVAL) + 1;
 
       const timelineData = new Float64Array(TIMELINE_SAMPLES);
       for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        timelineData[i] = earthEccentricity(-i * 5000);
+        timelineData[i] = earthEccentricity(-i * TIMELINE_SAMPLE_INTERVAL);
       }
       const eccMax = Math.max(...timelineData) * 1.05;
 
@@ -645,13 +698,13 @@
 
       const obliquityData = new Float64Array(TIMELINE_SAMPLES);
       for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        obliquityData[i] = earthObliquity(-i * 5000) * (180 / Math.PI);
+        obliquityData[i] = earthObliquity(-i * TIMELINE_SAMPLE_INTERVAL) * (180 / Math.PI);
       }
 
       const PREC_MAX = 0.07;
       const precessionData = new Float64Array(TIMELINE_SAMPLES);
       for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        precessionData[i] = earthPrecessionIndex(-i * 5000);
+        precessionData[i] = earthPrecessionIndex(-i * TIMELINE_SAMPLE_INTERVAL);
       }
 
       // ψ(t) = _PSI_P * t * _AS2RAD; pole star angles computed from t_closest
@@ -664,8 +717,21 @@
 
       const axialData = new Float64Array(TIMELINE_SAMPLES);
       for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-        axialData[i] = earthAxialPrecession(-i * 5000);
+        axialData[i] = earthAxialPrecession(-i * TIMELINE_SAMPLE_INTERVAL);
       }
+
+      // Combined seasonal contrast: precession as primary driver, eccentricity as amplifier
+      const combinedData = new Float64Array(TIMELINE_SAMPLES);
+      const combinedMax = { value: 0 };
+      for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+        const t = -i * TIMELINE_SAMPLE_INTERVAL;
+        const ecc = earthEccentricity(t);
+        const prIdx = earthPrecessionIndex(t);
+        // Precession is the main driver of seasonal contrast, amplified by eccentricity
+        combinedData[i] = prIdx * (1 + ecc * 0.5);
+        combinedMax.value = Math.max(combinedMax.value, Math.abs(combinedData[i]));
+      }
+      const combinedMaxVal = combinedMax.value * 1.05;
 
       // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -999,12 +1065,13 @@
       // ─── Draw precession timeline ─────────────────────────────────────────────────
 
       function drawPrecessionTimeline(prT) {
+        const PR_T_MAX_KYR = Math.abs(PR_T_MAX) / 1000;
         prTc.clearRect(0, 0, TW, TH);
         prTc.fillStyle = '#2a4a6a'; prTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
 
         const zeroY = TL_PAD_T + TL_H / 2;
 
-        // Positive fill (e·sin ϖ > 0 → warm)
+        // Positive fill (e·sin ϖ > 0 → warm) - goes UP (top)
         prTc.beginPath();
         prTc.moveTo(TL_PAD_L + TL_W, zeroY);
         for (let i = 0; i < TIMELINE_SAMPLES; i++) {
@@ -1014,9 +1081,9 @@
           prTc.lineTo(x, y);
         }
         prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
-        prTc.fillStyle = 'rgba(30,70,180,0.28)'; prTc.fill();
+        prTc.fillStyle = 'rgba(180,90,30,0.28)'; prTc.fill();
 
-        // Negative fill (e·sin ϖ < 0 → cool)
+        // Negative fill (e·sin ϖ < 0 → cool) - goes DOWN (bottom)
         prTc.beginPath();
         prTc.moveTo(TL_PAD_L + TL_W, zeroY);
         for (let i = 0; i < TIMELINE_SAMPLES; i++) {
@@ -1026,7 +1093,7 @@
           prTc.lineTo(x, y);
         }
         prTc.lineTo(TL_PAD_L, zeroY); prTc.closePath();
-        prTc.fillStyle = 'rgba(180,90,30,0.28)'; prTc.fill();
+        prTc.fillStyle = 'rgba(30,70,180,0.28)'; prTc.fill();
 
         // Zero line
         prTc.save(); prTc.setLineDash([3, 5]);
@@ -1045,14 +1112,14 @@
 
         // 405 kyr markers (eccentricity modulation of precession envelope)
         prTc.setLineDash([2, 6]); prTc.strokeStyle = 'rgba(80,140,80,0.35)'; prTc.lineWidth = 1;
-        for (let kyr = 405; kyr <= 1000; kyr += 405) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        for (let kyr = 405; kyr <= PR_T_MAX_KYR; kyr += 405) {
+          const xi = TL_PAD_L + (1 - kyr / PR_T_MAX_KYR) * TL_W;
           prTc.beginPath(); prTc.moveTo(xi, TL_PAD_T); prTc.lineTo(xi, TL_PAD_T + TL_H); prTc.stroke();
         }
         prTc.setLineDash([]);
 
         // Cursor
-        const fracT = Math.abs(prT) / 1_000_000;
+        const fracT = Math.abs(prT) / Math.abs(PR_T_MAX);
         const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
         prTc.strokeStyle = '#f0e060'; prTc.lineWidth = 1.5;
         prTc.beginPath(); prTc.moveTo(cursorX, TL_PAD_T - 2); prTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); prTc.stroke();
@@ -1068,8 +1135,9 @@
 
         // X labels
         prTc.fillStyle = '#90b8d8'; prTc.font = "0.65rem 'Courier New', monospace"; prTc.textAlign = 'center';
-        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        const step = Math.ceil(PR_T_MAX_KYR / 10);
+        for (let kyr = 0; kyr <= PR_T_MAX_KYR; kyr += step) {
+          const xi = TL_PAD_L + (1 - kyr / PR_T_MAX_KYR) * TL_W;
           prTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
         }
         prTc.fillStyle = '#7aaacf'; prTc.textAlign = 'center';
@@ -1092,6 +1160,63 @@
         }
       }
 
+      // ─── Draw combined timeline ───────────────────────────────────────────────────
+
+      function drawCombinedTimeline(combT) {
+        const COMB_T_MAX_KYR = Math.abs(T_MAX) / 1000;
+        combTc5.clearRect(0, 0, combineTl5.width, combineTl5.height);
+        combTc5.fillStyle = '#1a3a4a'; combTc5.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
+
+        const zeroY = TL_PAD_T + TL_H / 2;
+
+        // Zero line
+        combTc5.save(); combTc5.setLineDash([3, 5]);
+        combTc5.strokeStyle = 'rgba(100,140,160,0.5)'; combTc5.lineWidth = 0.8;
+        combTc5.beginPath(); combTc5.moveTo(TL_PAD_L, zeroY); combTc5.lineTo(TL_PAD_L + TL_W, zeroY); combTc5.stroke();
+        combTc5.restore();
+
+        // Curve
+        combTc5.beginPath();
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = zeroY + (combinedData[i] / combinedMaxVal) * (TL_H / 2);
+          i === 0 ? combTc5.moveTo(x, y) : combTc5.lineTo(x, y);
+        }
+        combTc5.strokeStyle = '#80b0e0'; combTc5.lineWidth = 1.2; combTc5.stroke();
+
+        // Cursor
+        const fracT = Math.abs(combT) / Math.abs(T_MAX);
+        const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
+        combTc5.strokeStyle = '#f0e060'; combTc5.lineWidth = 1.5;
+        combTc5.beginPath(); combTc5.moveTo(cursorX, TL_PAD_T - 2); combTc5.lineTo(cursorX, TL_PAD_T + TL_H + 2); combTc5.stroke();
+        const ecc = earthEccentricity(combT);
+        const prIdx = earthPrecessionIndex(combT);
+        const combVal = prIdx * (1 + ecc * 0.5);
+        const dotY = zeroY + (combVal / combinedMaxVal) * (TL_H / 2);
+        combTc5.beginPath();
+        combTc5.arc(cursorX, Math.max(TL_PAD_T, Math.min(TL_PAD_T + TL_H, dotY)), 3.5, 0, Math.PI * 2);
+        combTc5.fillStyle = '#f0e060'; combTc5.fill();
+
+        // Axes
+        combTc5.strokeStyle = '#7aaacf'; combTc5.lineWidth = 1;
+        combTc5.beginPath(); combTc5.moveTo(TL_PAD_L, TL_PAD_T); combTc5.lineTo(TL_PAD_L, TL_PAD_T + TL_H); combTc5.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); combTc5.stroke();
+
+        // X labels
+        combTc5.fillStyle = '#90b8d8'; combTc5.font = "0.65rem 'Courier New', monospace"; combTc5.textAlign = 'center';
+        const step = Math.ceil(COMB_T_MAX_KYR / 10);
+        for (let kyr = 0; kyr <= COMB_T_MAX_KYR; kyr += step) {
+          const xi = TL_PAD_L + (1 - kyr / COMB_T_MAX_KYR) * TL_W;
+          combTc5.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
+        }
+        combTc5.fillStyle = '#7aaacf'; combTc5.textAlign = 'center';
+        combTc5.fillText('← kyr BP', TL_PAD_L + TL_W / 2, combineTl5.height - 2);
+
+        // Y label
+        combTc5.save(); combTc5.translate(12, TL_PAD_T + TL_H / 2); combTc5.rotate(-Math.PI / 2);
+        combTc5.fillStyle = '#b0d8f0'; combTc5.font = "0.6rem 'Courier New', monospace"; combTc5.textAlign = 'center';
+        combTc5.fillText('Glacial ← → Interglacial', 0, 0); combTc5.restore();
+      }
+
       // ─── Precession stats ─────────────────────────────────────────────────────────
 
       function updatePrStats(t, prIdx, pibarRad) {
@@ -1106,6 +1231,7 @@
       // ─── Draw eccentricity timeline ───────────────────────────────────────────────
 
       function drawTimeline(currentT) {
+        const T_MAX_KYR = Math.abs(T_MAX) / 1000;
         tc.clearRect(0, 0, TW, TH);
         tc.fillStyle = '#2a4a6a'; tc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
 
@@ -1128,13 +1254,13 @@
         tc.closePath(); tc.fillStyle = 'rgba(30,80,150,0.22)'; tc.fill();
 
         tc.setLineDash([2, 6]); tc.strokeStyle = 'rgba(80,140,80,0.35)'; tc.lineWidth = 1;
-        for (let kyr = 405; kyr <= 1000; kyr += 405) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        for (let kyr = 405; kyr <= T_MAX_KYR; kyr += 405) {
+          const xi = TL_PAD_L + (1 - kyr / T_MAX_KYR) * TL_W;
           tc.beginPath(); tc.moveTo(xi, TL_PAD_T); tc.lineTo(xi, TL_PAD_T + TL_H); tc.stroke();
         }
         tc.setLineDash([]);
 
-        const fracT = Math.abs(currentT) / 1_000_000;
+        const fracT = Math.abs(currentT) / Math.abs(T_MAX);
         const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
         tc.strokeStyle = '#f0e060'; tc.lineWidth = 1.5;
         tc.beginPath(); tc.moveTo(cursorX, TL_PAD_T - 2); tc.lineTo(cursorX, TL_PAD_T + TL_H + 2); tc.stroke();
@@ -1146,8 +1272,9 @@
         tc.beginPath(); tc.moveTo(TL_PAD_L, TL_PAD_T); tc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); tc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); tc.stroke();
 
         tc.fillStyle = '#90b8d8'; tc.font = "0.65rem 'Courier New', monospace"; tc.textAlign = 'center';
-        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        const step = Math.ceil(T_MAX_KYR / 10);
+        for (let kyr = 0; kyr <= T_MAX_KYR; kyr += step) {
+          const xi = TL_PAD_L + (1 - kyr / T_MAX_KYR) * TL_W;
           tc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
         }
         tc.fillStyle = '#7aaacf'; tc.textAlign = 'center';
@@ -1170,9 +1297,41 @@
       // ─── Draw obliquity timeline ──────────────────────────────────────────────────
 
       function drawObliquityTimeline(oblT) {
+        const OBL_T_MAX_KYR = Math.abs(OBL_T_MAX) / 1000;
         oblTc.clearRect(0, 0, TW, TH);
         oblTc.fillStyle = '#2a4a6a'; oblTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
 
+        // Calculate average obliquity
+        let oblSum = 0;
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) oblSum += obliquityData[i];
+        const avgObl = oblSum / TIMELINE_SAMPLES;
+        const avgY = TL_PAD_T + TL_H - ((avgObl - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+
+        // Shade above average (warm color - red/orange)
+        oblTc.beginPath();
+        oblTc.moveTo(TL_PAD_L + TL_W, avgY);
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+          const yClipped = Math.min(y, avgY);
+          oblTc.lineTo(x, yClipped);
+        }
+        oblTc.lineTo(TL_PAD_L, avgY); oblTc.closePath();
+        oblTc.fillStyle = 'rgba(180,90,30,0.28)'; oblTc.fill();
+
+        // Shade below average (cool color - blue)
+        oblTc.beginPath();
+        oblTc.moveTo(TL_PAD_L + TL_W, avgY);
+        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
+          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
+          const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
+          const yClipped = Math.max(y, avgY);
+          oblTc.lineTo(x, yClipped);
+        }
+        oblTc.lineTo(TL_PAD_L, avgY); oblTc.closePath();
+        oblTc.fillStyle = 'rgba(30,70,180,0.28)'; oblTc.fill();
+
+        // Draw the curve line
         oblTc.beginPath();
         for (let i = 0; i < TIMELINE_SAMPLES; i++) {
           const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
@@ -1181,25 +1340,21 @@
         }
         oblTc.strokeStyle = '#3a80c0'; oblTc.lineWidth = 1.2; oblTc.stroke();
 
-        oblTc.beginPath();
-        for (let i = 0; i < TIMELINE_SAMPLES; i++) {
-          const x = TL_PAD_L + (1 - i / (TIMELINE_SAMPLES - 1)) * TL_W;
-          const y = TL_PAD_T + TL_H - ((obliquityData[i] - OBL_MIN_DEG) / OBL_RANGE) * TL_H;
-          i === 0 ? oblTc.moveTo(x, y) : oblTc.lineTo(x, y);
-        }
-        oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H);
-        oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H);
-        oblTc.closePath(); oblTc.fillStyle = 'rgba(30,80,150,0.22)'; oblTc.fill();
+        // Draw average line
+        oblTc.save(); oblTc.setLineDash([3, 5]);
+        oblTc.strokeStyle = 'rgba(120,160,200,0.5)'; oblTc.lineWidth = 0.8;
+        oblTc.beginPath(); oblTc.moveTo(TL_PAD_L, avgY); oblTc.lineTo(TL_PAD_L + TL_W, avgY); oblTc.stroke();
+        oblTc.restore();
 
         // 410 kyr markers (10 × 41 kyr obliquity cycle)
         oblTc.setLineDash([2, 6]); oblTc.strokeStyle = 'rgba(160,110,50,0.35)'; oblTc.lineWidth = 1;
-        for (let kyr = 410; kyr <= 1000; kyr += 410) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        for (let kyr = 410; kyr <= OBL_T_MAX_KYR; kyr += 410) {
+          const xi = TL_PAD_L + (1 - kyr / OBL_T_MAX_KYR) * TL_W;
           oblTc.beginPath(); oblTc.moveTo(xi, TL_PAD_T); oblTc.lineTo(xi, TL_PAD_T + TL_H); oblTc.stroke();
         }
         oblTc.setLineDash([]);
 
-        const fracT = Math.abs(oblT) / 1_000_000;
+        const fracT = Math.abs(oblT) / Math.abs(OBL_T_MAX);
         const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
         oblTc.strokeStyle = '#f0e060'; oblTc.lineWidth = 1.5;
         oblTc.beginPath(); oblTc.moveTo(cursorX, TL_PAD_T - 2); oblTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); oblTc.stroke();
@@ -1213,8 +1368,9 @@
         oblTc.beginPath(); oblTc.moveTo(TL_PAD_L, TL_PAD_T); oblTc.lineTo(TL_PAD_L, TL_PAD_T + TL_H); oblTc.lineTo(TL_PAD_L + TL_W, TL_PAD_T + TL_H); oblTc.stroke();
 
         oblTc.fillStyle = '#90b8d8'; oblTc.font = "0.65rem 'Courier New', monospace"; oblTc.textAlign = 'center';
-        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        const step = Math.ceil(OBL_T_MAX_KYR / 10);
+        for (let kyr = 0; kyr <= OBL_T_MAX_KYR; kyr += step) {
+          const xi = TL_PAD_L + (1 - kyr / OBL_T_MAX_KYR) * TL_W;
           oblTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
         }
         oblTc.fillStyle = '#7aaacf'; oblTc.textAlign = 'center';
@@ -1442,6 +1598,7 @@
       // ─── Draw axial precession timeline ──────────────────────────────────────────
 
       function drawAxialTimeline(axT) {
+        const AX_T_MAX_KYR = Math.abs(AX_T_MAX) / 1000;
         axTc.clearRect(0, 0, TW, TH);
         axTc.fillStyle = '#2a4a6a'; axTc.fillRect(TL_PAD_L, TL_PAD_T, TL_W, TL_H);
 
@@ -1465,7 +1622,7 @@
         axTc.restore();
 
         // Cursor
-        const fracT = Math.abs(axT) / 1_000_000;
+        const fracT = Math.abs(axT) / Math.abs(AX_T_MAX);
         const cursorX = TL_PAD_L + (1 - fracT) * TL_W;
         axTc.strokeStyle = '#f0e060'; axTc.lineWidth = 1.5;
         axTc.beginPath(); axTc.moveTo(cursorX, TL_PAD_T - 2); axTc.lineTo(cursorX, TL_PAD_T + TL_H + 2); axTc.stroke();
@@ -1482,8 +1639,9 @@
 
         // X labels
         axTc.fillStyle = '#90b8d8'; axTc.font = "0.65rem 'Courier New', monospace"; axTc.textAlign = 'center';
-        for (const kyr of [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]) {
-          const xi = TL_PAD_L + (1 - kyr / 1000) * TL_W;
+        const step = Math.ceil(AX_T_MAX_KYR / 10);
+        for (let kyr = 0; kyr <= AX_T_MAX_KYR; kyr += step) {
+          const xi = TL_PAD_L + (1 - kyr / AX_T_MAX_KYR) * TL_W;
           axTc.fillText(kyr === 0 ? 'NOW' : `${kyr}`, xi, TL_PAD_T + TL_H + 16);
         }
         axTc.fillStyle = '#7aaacf'; axTc.textAlign = 'center';
@@ -1579,6 +1737,38 @@
           drawAxialTimeline(axCurrentT);
           updateAxStats(axCurrentT, psiRad);
           if (axSoundOn && axOscillator) axOscillator.frequency.setTargetAtTime(axToHz(psiRad), axAudioCtx.currentTime, 0.05);
+        } else if (activePage === 'combine') {
+          if (lastTimestamp !== null && playing) {
+            const dt = (timestamp - lastTimestamp) / 1000;
+            currentT += getCombineSpeed() * 1000 * dt;
+            if (currentT > T_MIN) currentT = T_MAX;
+          }
+          lastTimestamp = timestamp;
+          const e = earthEccentricity(currentT);
+          const oblDeg = earthObliquity(currentT) * 180 / Math.PI;
+          const prIdx = earthPrecessionIndex(currentT);
+          const psiRad = earthAxialPrecession(currentT);
+          drawTimeline(currentT);
+          drawObliquityTimeline(currentT);
+          drawPrecessionTimeline(currentT);
+          drawAxialTimeline(currentT);
+          drawCombinedTimeline(currentT);
+          combTc1.clearRect(0, 0, combineTl1.width, combineTl1.height);
+          combTc2.clearRect(0, 0, combineTl2.width, combineTl2.height);
+          combTc3.clearRect(0, 0, combineTl3.width, combineTl3.height);
+          combTc1.drawImage(timelineCanvas, 0, 0);
+          combTc2.drawImage(oblTlCanvas, 0, 0);
+          combTc3.drawImage(prTlCanvas, 0, 0);
+          if (combineSoundOn && combineOscillators) {
+            combineOscillators[0].frequency.setTargetAtTime(eccToHz(e), combineAudioCtx.currentTime, 0.05);
+            combineOscillators[1].frequency.setTargetAtTime(oblToHz(oblDeg), combineAudioCtx.currentTime, 0.05);
+            combineOscillators[2].frequency.setTargetAtTime(prToHz(prIdx), combineAudioCtx.currentTime, 0.05);
+            combineOscillators[3].frequency.setTargetAtTime(axToHz(psiRad), combineAudioCtx.currentTime, 0.05);
+            combineOscillators[4].frequency.setTargetAtTime(combToHz(currentT), combineAudioCtx.currentTime, 0.05);
+            for (let i = 0; i < 5; i++) {
+              combineGainNodes[i].gain.value = combineMuted[i] ? 0 : 0.036;
+            }
+          }
         }
         requestAnimationFrame(frame);
       }
@@ -1750,6 +1940,121 @@
         const psiMod = ((psiRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const dist = Math.min(psiMod, 2 * Math.PI - psiMod);  // 0..π
         return 80 + (1 - dist / Math.PI) * 440;
+      }
+
+      function combToHz(t) {
+        const ecc = earthEccentricity(t);
+        const prIdx = earthPrecessionIndex(t);
+        const combVal = prIdx * (1 + ecc * 0.5);
+        return 80 + ((combVal + combinedMaxVal) / (2 * combinedMaxVal)) * 440;
+      }
+
+      // ─── Combine page controls ─────────────────────────────────────────────────────
+
+      const combineSpeedSlider = document.getElementById('combineSpeedSlider');
+      const combineSpeedVal = document.getElementById('combineSpeedVal');
+
+      function getCombineSpeed() {
+        const v = combineSpeedSlider.value / 100;
+        return Math.round(10 ** (1 + v * 3));
+      }
+
+      function updateCombineSpeedLabel() {
+        const s = getCombineSpeed();
+        combineSpeedVal.textContent = s >= 1000 ? (s / 1000).toFixed(s % 1000 === 0 ? 0 : 1) + ' Myr/s' : s + ' kyr/s';
+      }
+      combineSpeedSlider.addEventListener('input', updateCombineSpeedLabel);
+      updateCombineSpeedLabel();
+
+      document.getElementById('combineBtnPlay').addEventListener('click', function () {
+        playing = !playing;
+        this.innerHTML = playing ? '&#9646;&#9646; PAUSE' : '&#9654; PLAY';
+        if (playing) lastTimestamp = null;
+      });
+
+      document.getElementById('combineBtnReset').addEventListener('click', () => {
+        currentT = 0; lastTimestamp = null;
+      });
+
+      combineTl1.addEventListener('click', function (ev) {
+        const rect = this.getBoundingClientRect();
+        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        currentT = -(1 - frac) * Math.abs(T_MAX);
+        lastTimestamp = null;
+      });
+
+      // ─── Combine sound (5 oscillators with mute controls) ────────────────────────
+
+      let combineAudioCtx = null, combineOscillators = null, combineGainNodes = null, combineSoundOn = false;
+      let combineMuted = [false, false, false, false, false];
+
+      document.getElementById('combineBtnSound').addEventListener('click', function () {
+        if (!combineSoundOn) {
+          combineAudioCtx = combineAudioCtx || new AudioContext();
+          const e = earthEccentricity(currentT);
+          const oblDeg = earthObliquity(currentT) * 180 / Math.PI;
+          const prIdx = earthPrecessionIndex(currentT);
+          const psiRad = earthAxialPrecession(currentT);
+
+          const osc1 = combineAudioCtx.createOscillator();
+          const osc2 = combineAudioCtx.createOscillator();
+          const osc3 = combineAudioCtx.createOscillator();
+          const osc4 = combineAudioCtx.createOscillator();
+          const osc5 = combineAudioCtx.createOscillator();
+          combineOscillators = [osc1, osc2, osc3, osc4, osc5];
+
+          const gain1 = combineAudioCtx.createGain();
+          const gain2 = combineAudioCtx.createGain();
+          const gain3 = combineAudioCtx.createGain();
+          const gain4 = combineAudioCtx.createGain();
+          const gain5 = combineAudioCtx.createGain();
+          combineGainNodes = [gain1, gain2, gain3, gain4, gain5];
+
+          for (let i = 0; i < 5; i++) {
+            combineOscillators[i].type = 'sine';
+            combineGainNodes[i].gain.value = 0.036;
+            combineOscillators[i].connect(combineGainNodes[i]);
+            combineGainNodes[i].connect(combineAudioCtx.destination);
+          }
+
+          osc1.frequency.value = eccToHz(e);
+          osc2.frequency.value = oblToHz(oblDeg);
+          osc3.frequency.value = prToHz(prIdx);
+          osc4.frequency.value = axToHz(psiRad);
+          osc5.frequency.value = combToHz(currentT);
+
+          for (let i = 0; i < 5; i++) combineOscillators[i].start();
+          combineSoundOn = true; this.textContent = '⏹ SOUND';
+        } else {
+          combineOscillators.forEach(osc => osc.stop());
+          combineOscillators = null; combineSoundOn = false; this.textContent = '♩ SOUND';
+          combineMuted = [false, false, false, false, false];
+          for (let i = 1; i <= 5; i++) {
+            if (i !== 4) {
+              document.getElementById(`combineMuteLabel${i}`).textContent = 'Click to Mute';
+              document.getElementById(`combineMuteLabel${i}`).style.color = '#888';
+            }
+          }
+        }
+      });
+
+      // Mute controls for individual canvases
+      for (let i = 1; i <= 5; i++) {
+        if (i === 4) continue;
+        document.getElementById(`combineTimelineCanvas${i}`).addEventListener('click', function (ev) {
+          if (combineSoundOn) {
+            combineMuted[i - 1] = !combineMuted[i - 1];
+            const label = document.getElementById(`combineMuteLabel${i}`);
+            if (combineMuted[i - 1]) {
+              label.textContent = 'MUTED';
+              label.style.color = '#e88888';
+            } else {
+              label.textContent = 'Click to Mute';
+              label.style.color = '#888';
+            }
+            ev.stopPropagation();
+          }
+        });
       }
 
       // ─── Start ────────────────────────────────────────────────────────────────────
