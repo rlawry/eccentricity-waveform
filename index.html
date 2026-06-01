@@ -1789,7 +1789,7 @@
         const rect = this.getBoundingClientRect();
         const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
         const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
-        currentT = -(1 - frac) * 1_000_000;
+        currentT = -(1 - frac) * Math.abs(T_MAX);
         lastTimestamp = null;
       });
 
@@ -1831,7 +1831,7 @@
         const rect = this.getBoundingClientRect();
         const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
         const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
-        oblCurrentT = -(1 - frac) * 1_000_000;
+        oblCurrentT = -(1 - frac) * Math.abs(OBL_T_MAX);
         oblLastTimestamp = null;
       });
 
@@ -1873,7 +1873,7 @@
         const rect = this.getBoundingClientRect();
         const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
         const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
-        prCurrentT = -(1 - frac) * 1_000_000;
+        prCurrentT = -(1 - frac) * Math.abs(PR_T_MAX);
         prLastTimestamp = null;
       });
 
@@ -1915,7 +1915,7 @@
         const rect = this.getBoundingClientRect();
         const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
         const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
-        axCurrentT = -(1 - frac) * 1_000_000;
+        axCurrentT = -(1 - frac) * Math.abs(AX_T_MAX);
         axLastTimestamp = null;
       });
 
