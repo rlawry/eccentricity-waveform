@@ -1787,7 +1787,8 @@
 
       timelineCanvas.addEventListener('click', function (ev) {
         const rect = this.getBoundingClientRect();
-        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
+        const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
         currentT = -(1 - frac) * 1_000_000;
         lastTimestamp = null;
       });
@@ -1828,7 +1829,8 @@
 
       oblTlCanvas.addEventListener('click', function (ev) {
         const rect = this.getBoundingClientRect();
-        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
+        const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
         oblCurrentT = -(1 - frac) * 1_000_000;
         oblLastTimestamp = null;
       });
@@ -1869,7 +1871,8 @@
 
       prTlCanvas.addEventListener('click', function (ev) {
         const rect = this.getBoundingClientRect();
-        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
+        const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
         prCurrentT = -(1 - frac) * 1_000_000;
         prLastTimestamp = null;
       });
@@ -1910,7 +1913,8 @@
 
       axTlCanvas.addEventListener('click', function (ev) {
         const rect = this.getBoundingClientRect();
-        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
+        const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
         axCurrentT = -(1 - frac) * 1_000_000;
         axLastTimestamp = null;
       });
@@ -1978,7 +1982,8 @@
 
       combineTl1.addEventListener('click', function (ev) {
         const rect = this.getBoundingClientRect();
-        const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left - TL_PAD_L) / TL_W));
+        const rawX = (ev.clientX - rect.left) * (this.width / rect.width);
+        const frac = Math.max(0, Math.min(1, (rawX - TL_PAD_L) / TL_W));
         currentT = -(1 - frac) * Math.abs(T_MAX);
         lastTimestamp = null;
       });
